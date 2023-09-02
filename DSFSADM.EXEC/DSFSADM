@@ -3,8 +3,8 @@
  |                                                            |
  | Function:  drive the dsfsmenu for Operator or user         |
  |                                                            |
- | Syntax:    %dsfsadm O or D                                 |
- |            O = Operator D = dsadm (default)                |
+ | Syntax:    %dsfsadm A or U                                 |
+ |            A = Admin or U = user (dsadm)                   |
  |                                                            |
  | Usage Notes: altlibs/libdefs                               |
  |                                                            |
@@ -13,14 +13,15 @@
  | Author:    Lionel B. Dyck                                  |
  |                                                            |
  | History:  (most recent on top)                             |
+ |            2023/09/02 LBD - update                         |
  |            2023/08/22 LBD - revise options                 |
  |            2023/08/20 LBD - Creation                       |
  |                                                            |
  * ---------------------------------------------------------- */
  arg option
 
- exec   = "'lbdyck.dsfsadm.exec'" /* changed during receive */
- panels = "'lbdyck.dsfsadm.panels'" /* changed during receive */
+ exec   = "'HLQ.dsfsadm.exec'"    /* changed during receive */
+ panels = "'HLQ.dsfsadm.panels'"    /* changed during receive */
 
  'altlib activate dataset('exec') application(exec)'
  address ispexec
