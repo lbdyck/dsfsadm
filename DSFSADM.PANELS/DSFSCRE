@@ -1,0 +1,116 @@
+)Attr Default(%+_)
+   ` type(text) intens(high) color(blue)
+   ~ type(text) intens(high) color(turq  ) hilite(reverse)
+   @ type(output) intens(high) color(turq  ) hilite(reverse)
+   # type(output) intens(high) caps(off)
+   _ type(input) caps(off) just(left) hilite(uscore)
+   + type(text) skip(off) intens(low)
+)Body  Expand(\\)
+%\-\-~DSFS dsadm Createparm@ver%-\-\
+%Option ===>_zcmd
+%
+ +Using HLQ of#hlq     +
++
+ +Type:    _z+bin or_z+rec or_z+txt
+ +
+ +DSORG:   _z+Partitioned or_z+Sequential
+ +RECFM:   _z+FB or_z+VB
+ +LRECL:   _lrecl+
+ +BLKSIZE: _blksz+  0=system determined  (If RECFM=FB then must be a multiple
+ +                                        of the LRECL)
+ +Space:   _z+Trks or_z+Cyl
+ +Primary: _z   +and Secondary_z   +
+)Init
+  .cursor = zcmd
+  .zvars = '(bin rec txt po ps fb vb trk cyl prim sec)'
+*rexx(* hlq)
+   hlq = sysvar('sysuid')
+*endrexx
+)Proc
+ &resp = .resp
+*rexx(* resp msg csr)
+  parse value '' with msg csr null
+  if words(bin rec txt) = 0 then do
+     msg = 'You must select one type for the createparm option - try again.'
+     csr = 'bin'
+     end
+  if msg = null then
+  if words(bin rec txt) > 1 then do
+     msg = 'Only one type may be selected at a time - try again.'
+     csr = 'bin'
+     end
+  if msg = null then
+  if words(po ps) = 0 then do
+     msg = 'You must select one dataset organization - try again.'
+     csr = 'po'
+     end
+  if msg = null then
+  if words(fb vb) = 0 then do
+     msg = 'You must select one record format - try again.'
+     csr = 'fb'
+     end
+  if msg = null then
+  if lrecl = null then do
+     msg = 'You must specify a logical record length.'
+     csr = 'lrecl'
+     end
+  else if datatype(lrecl) /= 'NUM' then do
+     msg = 'The logical record length must be numeric.'
+     csr = 'lrecl'
+     end
+  else if lrecl > 32767 then do
+     msg = 'The logical record length must not exceed 32767.'
+     csr = 'lrecl'
+     end
+  if msg = null then
+  if blksz = null then do
+     msg = 'You must specify a BLKSIZE.'
+     csr = 'blksz'
+     end
+  else if datatype(blksz) /= 'NUM' then do
+     msg = 'The BLKSIZE length must be numeric.'
+     csr = 'blksz'
+     end
+  else if blksz > 32767 then do
+     msg = 'The BLKSIZE length must not exceed 32767.'
+     csr = 'blksz'
+     end
+  if msg = null then
+     if fb /= null then
+        if blksz /= 0 then
+        if blksz//lrecl /= 0 then do
+     msg = 'The BLKSIZE length must be a multiple of the LRECL for' ,
+           'RECFM=FB.'
+     csr = 'blksz'
+     end
+  if msg = null then
+     if words(trk cyl) = 0 then do
+     msg = 'You must specify a Space Unit of Track or Cylinder.'
+     csr = 'trk'
+     end
+     else if words(trk cyl) > 1 then do
+     msg = 'You must specify a single Space Unit of Track or Cylinder.'
+     csr = 'trk'
+     end
+  if msg = null then
+     if words(prim sec) < 2 then do
+     msg = 'You must specify both a primary and secondary space allocation.'
+     csr = 'prim'
+     end
+  if msg = null then
+     if datatype(prim) /= 'NUM' then do
+     msg = 'The Primary space allocation must be numeric.'
+     csr = 'prim'
+     end
+  if msg = null then
+     if datatype(sec) /= 'NUM' then do
+     msg = 'The Secondary space allocation must be numeric.'
+     csr = 'sec'
+     end
+*endrexx
+ if (&msg NE &Z)
+     &zedsmsg = &Z
+     &zedlmsg = &msg
+     .MSG = ISRZ001
+     .cursor = &csr
+)End

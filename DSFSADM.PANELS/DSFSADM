@@ -1,0 +1,53 @@
+)Attr Default(%+_)
+   # type(ps)
+   $ type( input) intens(high) caps(on ) just(left )
+   ! type(text) intens(high) color(yellow)
+   ~ type(text) intens(high) color(turq  ) hilite(reverse)
+   @ type(output) intens(high) color(turq  ) hilite(reverse)
+   _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+)Body  Expand(\\)
+%\-\-~DSFS Admin Menu@ver%-\-\
+%Option ===>_zcmd
+%
+!*%1#abort             +Causes DSFS to Dump and Restart
+!*%2#dump              +Dumps DSFS including the z/OS Unix address space
+ +                      and associated address spaces
+!*%3#fsinfo            +Display detailed information about the DSFS Utility
+ +                      file system
+!*%4#query             +Displays All DSFS counters or values
+!*%5#reset             +Resets all DSFS counters to zero $z+
+ % 6#dsadm commands    +dsadm commands (admin and user)
++
+         !*+These actions require SDSF Operator Command capability.
+ +
+)Init
+ &hcon = &Z
+  .zvars = '(confirm)'
+  .cursor = zcmd
+  &confirm = &Z
+)ReInit
+)Proc
+ &resp = .resp
+*rexx(* confirm zcmd msg csr resp hcon)
+  parse value '' with null msg csr
+  if resp /= 'END' then
+  if zcmd = 5 then do
+     if confirm /= 'Y' then do
+        msg = 'Are you sure you want to do a reset? Enter Y to confirm.'
+        csr = 'confirm'
+        end
+   end
+*endrexx
+ if (&msg NE &Z)
+     &zedsmsg = &Z
+     &zedlmsg = &msg
+     .MSG = ISRZ001
+     .cursor = &csr
+)PNTS
+ FIELD(ZPS00001) VAR(RESULT) VAL('1')
+ FIELD(ZPS00002) VAR(RESULT) VAL('2')
+ FIELD(ZPS00003) VAR(RESULT) VAL('3')
+ FIELD(ZPS00004) VAR(RESULT) VAL('4')
+ FIELD(ZPS00005) VAR(RESULT) VAL('5')
+ FIELD(ZPS00006) VAR(RESULT) VAL('6')
+)End

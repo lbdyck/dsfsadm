@@ -1,0 +1,145 @@
+)Attr Default(%+_)
+   # type(ps)
+   $ type( input) intens(high) caps(on ) just(left )
+   ` type(text) intens(high) color(blue)
+   ! type(text) intens(high) color(yellow)
+   ~ type(text) intens(high) color(turq  ) hilite(reverse)
+   @ type(output) intens(high) color(turq  ) hilite(reverse)
+   _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+)Body  Expand(\\)
+%\-\-~DSFS User Menu@ver%-\-\
+%Option ===>_zcmd
+%
+ % 1#dsadm configquery +query configuration settings for the DSFS kernel
+ % 2#dsadm createparm  +Set Creation Parameters
+ % 3#dsadm fileinfo    +Obtain information on a file or directory
+                        txt:_z+ bin:_z+ rec:_z+
+ % 4#dsadm fsinfo      +Obtain utility file system information
+ % 5#dsadm help        +get help on commands
+                        config:_z+   configquery:_z+ createparm:_z+
+                        fileinfo:_z+ fsinfo:_z+      query:_z+     salvage:_z+
+ % 6#dsadm query       +query information for the DSFS kernel
+                        compression:_z+ dscache:_z+ filecache:_z+ iobydasd:_z+
+                        knpfs:_z+ locking:_z+ metacache:_z+ reset:_z+
+                        storage:_z+ vnodecache:_z+
+ % 7#dsadm salvage     +salvage utility file system  %*+Requires uid=0
+                        cancel:_z+ verifyonly:_z+
+ +
+ +
+)Init
+  .zvars = '(dtxt dbin drec +
+             hc hcq hcr hfi hfs hq hs +
+             qc qds qfc qio qkn ql qm qr qs qv sc sv)'
+  .cursor = zcmd
+)Proc
+ &resp = .resp
+*rexx(* msg fipath dshelp dtxt dbin drec hc hcq hcr hfi hfs hq hs ,
+      qc qds qfc qio qkn ql qm qr qs qv qopt sc sv salopt resp csr)
+  parse value '' with null csr msg
+  if resp /= 'END' then
+  Select
+  When zcmd = 3 then do
+    if space(dtxt dbin drec) = null
+    then do
+         msg = 'fileinfo requires a directory type'
+         csr = 'dtxt'
+         end
+    if words(dtxt dbin drec) > 1
+    then do
+       msg = 'fileinfo requires a single directory type'
+         csr = 'dtxt'
+       end
+    if msg = null then
+      select
+      when dtxt /= null
+      then fipath = '/dsfs/txt'
+      when dbin /= null
+      then fipath = '/dsfs/bin'
+      when drec /= null
+      then fipath = '/dsfs/rec'
+      otherwise nop
+    end
+  end
+  When zcmd = 5 then do
+    dshelp = null
+    if words(hc hcq hcr hfi hfs hq hs) = 0 then do
+      msg = 'Help requires a selection - try again.'
+      csr = 'hc'
+    end
+    if msg = null then
+    if words(hc hcq hcr hfi hfs hq hs) > 1 then do
+      msg = 'Help only allows a single value - try again.'
+      csr = 'hc'
+    end
+    if msg = null then
+    select
+      when hc  /= null then dshelp = 'config'
+      when hcq /= null then dshelp = 'configquery'
+      when hcr /= null then dshelp = 'createparm'
+      when hfi /= null then dshelp = 'fileinfo'
+      when hfs /= null then dshelp = 'fsinfo'
+      when hq  /= null then dshelp = 'query'
+      when hs  /= null then dshelp = 'salvage'
+      otherwise nop
+    end
+  end
+  When zcmd = 6 then do
+    qopt = null
+    if words(qc qds qfc qio qkn ql qm qr qs qv) > 1 then do
+      msg = 'Query only allows a single value - try again.'
+      csr = 'qc'
+    end
+    if words(qc qds qfc qio qkn ql qm qr qs qv) = 0 then do
+      msg = 'Query requires an option - try again.'
+      csr = 'qc'
+    end
+    if msg = null then
+    Select
+      when qc  /= null then qopt = 'compression'
+      when qds /= null then qopt = 'dscache'
+      when qfc /= null then qopt = 'filecache'
+      when qio /= null then qopt = 'iobydasd'
+      when qkn /= null then qopt = 'knpfs'
+      when ql  /= null then qopt = 'locking'
+      when qm  /= null then qopt = 'metacache'
+      when qr  /= null then qopt = 'reset'
+      when qs  /= null then qopt = 'storage'
+      when qv  /= null then qopt = 'vnodecache'
+      otherwise nop
+    end
+  end
+  When zcmd = 7 then do
+    salopt = null
+    if words(sc sv) > 1 then do
+      msg = 'Salvage only allows a single value - try again.'
+      csr = 'sc'
+    end
+    if words(sc sv) = 0 then do
+      msg = 'Query requires an option - try again.'
+      csr = 'sc'
+    end
+    if msg = null then
+    Select
+      when vc  /= null then salopt = '-cancel'
+      when vs  /= null then salopt = '-verifyonly'
+      otherwise nop
+    end
+  end
+  Otherwise nop
+  end
+*endrexx
+ if (&msg NE &Z)
+     &zedsmsg = &Z
+     &zedlmsg = &msg
+     .MSG = ISRZ001
+     .cursor = &csr
+)PNTS
+ FIELD(ZPS00001) VAR(RESULT) VAL('1')
+ FIELD(ZPS00002) VAR(RESULT) VAL('2')
+ FIELD(ZPS00003) VAR(RESULT) VAL('3')
+ FIELD(ZPS00004) VAR(RESULT) VAL('4')
+ FIELD(ZPS00005) VAR(RESULT) VAL('5')
+ FIELD(ZPS00006) VAR(RESULT) VAL('6')
+ FIELD(ZPS00007) VAR(RESULT) VAL('7')
+ FIELD(ZPS00008) VAR(RESULT) VAL('8')
+)End

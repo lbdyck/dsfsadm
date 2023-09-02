@@ -1,0 +1,247 @@
+  /* --------------------  rexx procedure  -------------------- */
+  ver = '0.3'
+  /* Name:      dsfsmenu                                       |
+  |                                                            |
+  | Function:  Display menu's for the management by sysprog    |
+  |           and user of DSFS.                                |
+  |                                                            |
+  | Syntax:    %dsfsmenu option                                |
+  |                                                            |
+  |            options:                                        |
+  |                Admin (A) Administration Menu               |
+  |                User  (U) dsadm (user and admin)            |
+  |                                                            |
+  | Usage Notes:  Operator requires ability to issue operator  |
+  |               commands using SDSF                          |
+  |                                                            |
+  | Dependencies: DSFS must be active and the /dsfs mount      |
+  |               point must exist                             |
+  |                                                            |
+  | Elements:  Panels                                          |
+  |             dsfsopr                                        |
+  |             dsfsadm                                        |
+  |             ...                                            |
+  |            Messages                                        |
+  |             isrz002 (IBM generic)                          |
+  |            Exec                                            |
+  |             dsfsmenu (this exec)                           |
+  |                                                            |
+  | Author:    Lionel B. Dyck                                  |
+  |                                                            |
+  | History:  (most recent on top)                             |
+  |            2023/09/02 LBD - ready for alpha testing        |
+  |            2023/08/28 LBD - Small updates                  |
+  |            2023/08/20 LBD - Creation                       |
+  |                                                            |
+  * ---------------------------------------------------------- */
+  arg option
+
+  parse value '' with null
+  zerrhm   = ''
+  zerralrm = 'NO'
+  zerrtp   = 'Notify'
+
+  Address ISPExec
+  'control errors return'
+
+  if option /= null then
+  if pos(left(option,1),'AU') = 0 then do
+    zerrsm  = ''
+    zerrlm  = 'This application requires an option of Admin (A) or' ,
+      'User (U)' ,
+      'or blank (for dsaddm to operate.  Try again.'
+    'Setmsg msg(isrz002)'
+    exit 8
+  end
+
+  if option = null then option = 'U'
+
+  /* ------------------------- *
+  | validate /dsfs if mounted |
+  * ------------------------- */
+  file = '/dsfs'
+  rc = exist(file)
+  if rc = 0 then do
+    zerrsm  = ''
+    zerrlm  = 'It does not appear that DSFS is active as the /dsfs' ,
+      'mount point does not exist. Try again after contacting systems' ,
+      'programming for help.'
+    'Setmsg msg(isrz002)'
+    exit 8
+  end
+
+  if option = 'A' then call do_Admin
+  if option = 'U' then call do_User
+  exit 0
+
+  /* ------------------------------- *
+  | Process the DsAdm DSADM commands |
+  * ------------------------------- */
+Do_User:
+  Do Forever
+    zcmd = null
+    'Display Panel(dsfsuser)'
+    if rc > 3 then exit 0
+    Select
+      When zcmd = 1 then x = do_omvs_command('dsadm configquery -all')
+      When zcmd = 2 then do
+        /* --------------------Samples--------------------------------- *
+        | dsadm createparm -path /dsfs/txt/user1 -psmodel              |
+        | "cyl dsorg(ps) lrecl(300) recfm(vb) space(20,10) blksize(0)" |
+        |                                                              |
+        | dsadm createparm -path /dsfs/txt/user1  -pdsmodel            |
+        | "cyl dsorg(po) lrecl(180) recfm(fb) space(20,10) blksize(0)  |
+        | dsntype(library)"                                            |
+        |                                                              |
+        | bin rec txt po ps fb vb lrecl blksz trk cyl prim sec         |
+        * ------------------------------------------------------------ */
+        zcmd = null
+        do forever
+          'display panel(dsfscre)'
+          if rc > 4 then leave
+          if bin /= null then type = 'bin'
+          if rec /= null then type = 'rec'
+          if txt /= null then type = 'txt'
+          cmd = 'dsadm createparm -path /dsfs/'type'/'lower(hlq) '"'
+          if ps /= null then cmd = cmd 'dsorg(ps)'
+          if po /= null then cmd = cmd 'dsorg(po) dsntype(library)'
+          if fb /= null then cmd = cmd 'recfm(fb)'
+          if vb /= null then cmd = cmd 'recfm(vb)'
+          if trk /= null then cmd = cmd 'trks space('prim','sec')'
+          if cyl /= null then cmd = cmd 'cyl  space('prim','sec')'
+          cmd = cmd "lrecl("lrecl") blksize("blksz")'"
+          x = do_omvs_command(cmd)
+        end
+      end
+      When zcmd = 3 then x = do_omvs_command('dsadm fileinfo -path' fipath)
+      When zcmd = 4 then x = do_omvs_command('dsadm fsinfo')
+      When zcmd = 5 then x = do_omvs_command('dsadm help -topic' dshelp)
+      When zcmd = 6 then x = do_omvs_command('dsadm query -'qopt)
+      When zcmd = 7 then x = do_omvs_command('dsadm salvage' salopt)
+      Otherwise nop /* should never get here */
+    end
+  end
+  return 0
+
+  /* ----------------------------------------------------- *
+  | Process the DSFS Operator Operator Commands using SDSF |
+  * ----------------------------------------------------- */
+Do_Admin:
+  Do Forever
+    zcmd = null
+    'Display Panel(dsfsadm)'
+    if rc > 3 then exit 0
+    Select
+      When zcmd = 1 then x = do_zos_command('F DSFS,Abort')
+      When zcmd = 2 then x = do_zos_command('F DSFS,Dump')
+      When zcmd = 3 then x = do_zos_command('F DSFS,fsinfo')
+      When zcmd = 4 then x = do_zos_command('F DSFS,Query,All')
+      When zcmd = 5 then x = do_zos_command('F DSFS,Reset')
+      When zcmd = 6 then x = dsfsmenu('U')
+      Otherwise nop
+    end
+  end
+  return 0
+
+Do_zOS_Command:
+  parse arg zoscmd
+  isfcons = sysvar('sysuid')
+  rc = isfcalls('on')
+  Address SDSF "ISFSLASH '"zoscmd"' (WAIT)"
+  rc = view_it('ISF')
+  xc = isfcalls('off')
+  return 0
+
+Do_OMVS_Command:
+  parse arg ocmd
+  drop s. e.
+  x = bpxwunix(ocmd,,s.,e.)
+  is = s.0 + 1
+  s.is = copies('-',72)
+  is = is + 1
+  s.is = 'Generated command:' ocmd
+  s.0 = is
+  rc = view_it('S')
+  return 0
+
+View_It:
+  arg vopt
+  maxl = 0
+  Address TSO
+  if vopt = 'ISF' then do
+    do i = 1 to isfulog.0
+      if length(isfulog.i) > maxl then maxl = length(isfulog.i)
+    end
+    x = alloc_view()
+    'execio * diskw' dd '(finis stem isfulog.'
+  end
+  if vopt = 'S' then do
+    do i = 1 to s.0
+      if length(s.i) > maxl then maxl = length(s.i)
+    end
+    if maxl > 130 then do
+      drop sc.
+      sc = 0
+      maxl = 0
+      ind = 0
+      do i = 1 to s.0
+        if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
+          parse value s.i with add ' | ' s.i
+          sc = sc + 1
+          sn.sc = copies(' ',ind)''add
+          if ind = 0 then ind = pos('{-',add)-1
+        end
+        else sc = sc + 1
+        if pos('-------------',s.i) > 0 then ind = 0
+        sn.sc = copies(' ',ind)s.i
+      end
+      drop s.
+      do i = 1 to sc
+        s.i = sn.i
+      end
+      s.0 = sc
+    end
+    x = alloc_view()
+    'execio * diskw' dd '(finis stem s.'
+  end
+  Address ISPExec
+  'lminit dataid(ddb) ddname('dd')'
+  'browse dataid('ddb')'
+  'lmfree dataid('ddb')'
+  Address TSO ,
+    'free f('dd')'
+  Return 0
+
+Alloc_View:
+  dd = 'ds'time('s')
+  Address TSO ,
+    'alloc f('dd') space(15,15) tr unit(vio) recfm(v b) lrecl('maxl+4')' ,
+    'blksize(0) new'
+  return 0
+
+  /* ----------------------------------- *
+  | Routine to validate if /dsfs exists |
+  * ----------------------------------- */
+Exist: Procedure
+  parse arg file
+  x = syscalls('ON')
+  address syscall ,
+    'stat (file) st.'
+  x = syscalls('OFF')
+  return st.0
+
+  /* ------------------------------------- *
+  * Name:     Lower                       *
+  *                                       *
+  * Function: Lowercase the provided data *
+  *                                       *
+  * Syntax:   x=lower(input)              *
+  *                                       *
+  * History:                              *
+  *           08/17/07: created           *
+  * ------------------------------------- */
+Lower:
+  parse arg input
+  out = translate(input,"abcdefghijklmnopqrstuvwxyz",,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  return out
