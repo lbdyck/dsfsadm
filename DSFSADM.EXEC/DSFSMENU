@@ -189,12 +189,12 @@ View_It:
         if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
           parse value s.i with add ' | ' s.i
           sc = sc + 1
-          sn.sc = copies(' ',ind)''add
+          sn.sc = copies(' ',ind)'| 'add
           if ind = 0 then ind = pos('{-',add)-1
         end
         else sc = sc + 1
         if pos('-------------',s.i) > 0 then ind = 0
-        sn.sc = copies(' ',ind)s.i
+        sn.sc = copies(' ',ind)'|' s.i
       end
       drop s.
       do i = 1 to sc
