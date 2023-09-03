@@ -2,14 +2,14 @@
    ` type(text) intens(high) color(blue)
    ~ type(text) intens(high) color(turq  ) hilite(reverse)
    @ type(output) intens(high) color(turq  ) hilite(reverse)
-   # type(output) intens(high) caps(off)
+   # type(input) intens(high) caps(on) hilite(uscore)
    _ type(input) caps(off) just(left) hilite(uscore)
    + type(text) skip(off) intens(low)
 )Body  Expand(\\)
 %\-\-~DSFS dsadm Createparm@ver%-\-\
 %Option ===>_zcmd
 %
- +Using HLQ of#hlq     +
+ +Using HLQ of#hlq                     +Must start with Active users UserID
 +
  +Type:    _z+bin or_z+rec or_z+txt
  +
