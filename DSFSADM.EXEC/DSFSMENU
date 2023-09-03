@@ -188,7 +188,7 @@ View_It:
       maxl = 0
       ind = 0
       Select
-      When dsfshelp = 'config' then do
+      When wordpos(dsfshelp,'config createparm') > 0 then do
       hit = 0
       do i = 1 to s.0
         if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
@@ -198,7 +198,7 @@ View_It:
              then sn.sc = add
              else sn.sc = copies(' ',ind)'| 'add
              hit = 1
-          if ind = 0 then ind = pos('{-',add)-1
+          if ind = 0 then ind = pos('{-',add)-2
         end
         sc = sc + 1
         if pos('-------------',s.i) > 0 then ind = 0
@@ -213,6 +213,7 @@ View_It:
       s.0 = sc
     end
       otherwise nop
+      end
       end
     x = alloc_view()
     'execio * diskw' dd '(finis stem s.'
