@@ -25,100 +25,111 @@
  % 7#dsadm salvage     +salvage utility file system  %*+Requires uid=0
                         cancel:_z+ verifyonly:_z+
  +
+ + Confirm for%query+reset and%salvage+when prompted_z+
  +
+ %Note:+all options allow only a single selection except query.
 )Init
   .zvars = '(dtxt dbin drec +
              hc hcq hcr hfi hfs hq hs +
-             qc qds qfc qio qkn ql qm qr qs qv sc sv)'
+             qc qds qfc qio qkn ql qm qr qs qv sc sv confirm)'
+  &confirm = &z
   .cursor = zcmd
 )Proc
  &resp = .resp
 *rexx(* msg fipath dshelp dtxt dbin drec hc hcq hcr hfi hfs hq hs ,
-      qc qds qfc qio qkn ql qm qr qs qv qopt sc sv salopt resp csr)
+      qc qds qfc qio qkn ql qm qr qs qv qopt sc sv salopt resp csr confirm)
   parse value '' with null csr msg
   if resp /= 'END' then
   Select
-  When zcmd = 3 then do
-    if space(dtxt dbin drec) = null
-    then do
-         msg = 'fileinfo requires a directory type'
-         csr = 'dtxt'
-         end
-    if words(dtxt dbin drec) > 1
-    then do
-       msg = 'fileinfo requires a single directory type'
-         csr = 'dtxt'
-       end
-    if msg = null then
+    When zcmd = 3 then do
+      if space(dtxt dbin drec) = null
+      then do
+        msg = 'fileinfo requires a directory type'
+        csr = 'dtxt'
+      end
+      if words(dtxt dbin drec) > 1
+      then do
+        msg = 'fileinfo requires a single directory type'
+        csr = 'dtxt'
+      end
+      if msg = null then
       select
-      when dtxt /= null
-      then fipath = '/dsfs/txt'
-      when dbin /= null
-      then fipath = '/dsfs/bin'
-      when drec /= null
-      then fipath = '/dsfs/rec'
-      otherwise nop
+        when dtxt /= null
+        then fipath = '/dsfs/txt'
+        when dbin /= null
+        then fipath = '/dsfs/bin'
+        when drec /= null
+        then fipath = '/dsfs/rec'
+        otherwise nop
+      end
     end
-  end
-  When zcmd = 5 then do
-    dshelp = null
-    if words(hc hcq hcr hfi hfs hq hs) = 0 then do
-      msg = 'Help requires a selection - try again.'
-      csr = 'hc'
+    When zcmd = 5 then do
+      dshelp = null
+      if words(hc hcq hcr hfi hfs hq hs) = 0 then do
+        msg = 'Help requires a selection - try again.'
+        csr = 'hc'
+      end
+      if msg = null then
+      if words(hc hcq hcr hfi hfs hq hs) > 1 then do
+        msg = 'Help only allows a single value - try again.'
+        csr = 'hc'
+      end
+      if msg = null then
+      select
+        when hc  /= null then dshelp = 'config'
+        when hcq /= null then dshelp = 'configquery'
+        when hcr /= null then dshelp = 'createparm'
+        when hfi /= null then dshelp = 'fileinfo'
+        when hfs /= null then dshelp = 'fsinfo'
+        when hq  /= null then dshelp = 'query'
+        when hs  /= null then dshelp = 'salvage'
+        otherwise nop
+      end
     end
-    if msg = null then
-    if words(hc hcq hcr hfi hfs hq hs) > 1 then do
-      msg = 'Help only allows a single value - try again.'
-      csr = 'hc'
+    When zcmd = 6 then do
+      qopt = null
+      if words(qc qds qfc qio qkn ql qm qr qs qv) = 0 then do
+        msg = 'Query requires an option - try again.'
+        csr = 'qc'
+      end
+      if msg = null then
+      if qc    /= null then qopt = qopt '-compression'
+      if qds   /= null then qopt = qopt '-dscache'
+      if qfc   /= null then qopt = qopt '-filecache'
+      if qio   /= null then qopt = qopt '-iobydasd'
+      if qkn   /= null then qopt = qopt '-knpfs'
+      if ql    /= null then qopt = qopt '-locking'
+      if qm    /= null then qopt = qopt '-metacache'
+      if qr    /= null then qopt = qopt '-reset'
+      if qs    /= null then qopt = qopt '-storage'
+      if qv    /= null then qopt = qopt '-vnodecache'
+      if qr /= null then do
+        msg = 'Enter Y to confirm reset at the cursor position.'
+        csr = 'confirm'
+      end
     end
-    if msg = null then
-    select
-      when hc  /= null then dshelp = 'config'
-      when hcq /= null then dshelp = 'configquery'
-      when hcr /= null then dshelp = 'createparm'
-      when hfi /= null then dshelp = 'fileinfo'
-      when hfs /= null then dshelp = 'fsinfo'
-      when hq  /= null then dshelp = 'query'
-      when hs  /= null then dshelp = 'salvage'
-      otherwise nop
+    When zcmd = 7 then do
+      salopt = null
+      if words(sc sv) > 1 then do
+        msg = 'Salvage only allows a single value - try again.'
+        csr = 'sc'
+      end
+      if words(sc sv) = 0 then do
+        msg = 'Query requires an option - try again.'
+        csr = 'sc'
+      end
+      else if confirm /= 'Y' then do
+        msg = 'Enter Y to confirm salvage operation at the cursor position.'
+        csr = 'confirm'
+      end
+      if msg = null then
+      Select
+        when vc  /= null then salopt = '-cancel'
+        when vs  /= null then salopt = '-verifyonly'
+        otherwise nop
+      end
     end
-  end
-  When zcmd = 6 then do
-    qopt = null
-    if words(qc qds qfc qio qkn ql qm qr qs qv) = 0 then do
-      msg = 'Query requires an option - try again.'
-      csr = 'qc'
-    end
-    if msg = null then
-    if qc    /= null then qopt = qopt '-compression'
-    if qds /= null then qopt = qopt '-dscache'
-    if qfc /= null then qopt = qopt '-filecache'
-    if qio /= null then qopt = qopt '-iobydasd'
-    if qkn /= null then qopt = qopt '-knpfs'
-    if ql    /= null then qopt = qopt '-locking'
-    if qm    /= null then qopt = qopt '-metacache'
-    if qr    /= null then qopt = qopt '-reset'
-    if qs    /= null then qopt = qopt '-storage'
-    if qv    /= null then qopt = qopt '-vnodecache'
-  end
-  When zcmd = 7 then do
-    salopt = null
-    if words(sc sv) > 1 then do
-      msg = 'Salvage only allows a single value - try again.'
-      csr = 'sc'
-    end
-    if words(sc sv) = 0 then do
-      msg = 'Query requires an option - try again.'
-      csr = 'sc'
-    end
-    if msg = null then
-    Select
-      when vc  /= null then salopt = '-cancel'
-      when vs  /= null then salopt = '-verifyonly'
-      otherwise nop
-    end
-  end
-  Otherwise nop
+    Otherwise nop
   end
 *endrexx
  if (&msg NE &Z)
