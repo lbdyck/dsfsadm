@@ -83,6 +83,7 @@ Do_User:
     zcmd = null
     'Display Panel(dsfsuser)'
     if rc > 3 then exit 0
+    if zcmd /= null then
     Select
       When zcmd = 1 then x = do_omvs_command('dsadm configquery -all')
       When zcmd = 2 then do
@@ -162,6 +163,7 @@ Do_OMVS_Command:
   is = is + 1
   s.is = 'Generated command:' ocmd
   s.0 = is
+  parse value ocmd with . '-topic' dsfshelp
   rc = view_it('S')
   return 0
 
@@ -180,21 +182,29 @@ View_It:
     do i = 1 to s.0
       if length(s.i) > maxl then maxl = length(s.i)
     end
-    if maxl > 130 then do
+    if maxl > 80 then do
       drop sc.
       sc = 0
       maxl = 0
       ind = 0
+      Select
+      When dsfshelp = 'config' then do
+      hit = 0
       do i = 1 to s.0
         if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
           parse value s.i with add ' | ' s.i
           sc = sc + 1
-          sn.sc = copies(' ',ind)'| 'add
+          if hit = 0
+             then sn.sc = add
+             else sn.sc = copies(' ',ind)'| 'add
+             hit = 1
           if ind = 0 then ind = pos('{-',add)-1
         end
-        else sc = sc + 1
+        sc = sc + 1
         if pos('-------------',s.i) > 0 then ind = 0
-        sn.sc = copies(' ',ind)'|' s.i
+        if ind = 0
+           then sn.sc = s.i
+           else sn.sc = copies(' ',ind)'|' s.i
       end
       drop s.
       do i = 1 to sc
@@ -202,6 +212,8 @@ View_It:
       end
       s.0 = sc
     end
+      otherwise nop
+      end
     x = alloc_view()
     'execio * diskw' dd '(finis stem s.'
   end

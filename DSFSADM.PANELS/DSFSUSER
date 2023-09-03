@@ -27,7 +27,8 @@
  +
  + Confirm for%query+reset and%salvage+when prompted_z+
  +
- %Note:+all options allow only a single selection except query.
+ %Notes:+all options allow only a single selection except query.
+ +       Enter%RESET+to clear all selections.
 )Init
   .zvars = '(dtxt dbin drec +
              hc hcq hcr hfi hfs hq hs +
@@ -41,6 +42,9 @@
   parse value '' with null csr msg
   if resp /= 'END' then
   Select
+    When translate(zcmd) = 'RESET' then
+      parse value '' with dtxt dbin drec hc hcq hcr hfi hfs hq hs qc qds ,
+             qfc qio qkn ql qm qr qs qv sc sv confirm zcmd
     When zcmd = 3 then do
       if space(dtxt dbin drec) = null
       then do
