@@ -6,7 +6,9 @@ This ISPF dialog makes is easy to invoke the DSFS Administration commands and th
 It isn't perfect but it is a start.                                      
                                                                          
 ## Installation:                                                            
- - execute the $recv member to reconstitute the EXEC and PANELS members  
+ - If you received the package as a TSO XMIT file then
+     - Do a TSO RECEIVE of the XMIT file
+     - execute the $RECV member to reconstitute the EXEC and PANELS members  
  - update the DSFSADM member in the EXEC PDS to reference your libaries and copy into a library in your SYSEXEC or SYSPROC allocation         
    ** this is optional as it will use ALTLIB and LIBDEF to access the dialog in the recived libraries                                    
  - OR                                                                    
