@@ -28,8 +28,15 @@
 *endrexx
 )Proc
  &resp = .resp
+ ver (&hlq,nb,dsname)
 *rexx(* resp msg csr)
   parse value '' with msg csr null
+  parse value hlq with top '.' .
+  if top /= sysvar('sysuid') then do
+     msg = 'The HLQ must start with the active users USERID - try again.'
+     csr = 'hlq'
+     end
+  if msg = null then
   if words(bin rec txt) = 0 then do
      msg = 'You must select one type for the createparm option - try again.'
      csr = 'bin'
