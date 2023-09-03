@@ -85,28 +85,21 @@
   end
   When zcmd = 6 then do
     qopt = null
-    if words(qc qds qfc qio qkn ql qm qr qs qv) > 1 then do
-      msg = 'Query only allows a single value - try again.'
-      csr = 'qc'
-    end
     if words(qc qds qfc qio qkn ql qm qr qs qv) = 0 then do
       msg = 'Query requires an option - try again.'
       csr = 'qc'
     end
     if msg = null then
-    Select
-      when qc  /= null then qopt = 'compression'
-      when qds /= null then qopt = 'dscache'
-      when qfc /= null then qopt = 'filecache'
-      when qio /= null then qopt = 'iobydasd'
-      when qkn /= null then qopt = 'knpfs'
-      when ql  /= null then qopt = 'locking'
-      when qm  /= null then qopt = 'metacache'
-      when qr  /= null then qopt = 'reset'
-      when qs  /= null then qopt = 'storage'
-      when qv  /= null then qopt = 'vnodecache'
-      otherwise nop
-    end
+    if qc    /= null then qopt = qopt '-compression'
+    if qds /= null then qopt = qopt '-dscache'
+    if qfc /= null then qopt = qopt '-filecache'
+    if qio /= null then qopt = qopt '-iobydasd'
+    if qkn /= null then qopt = qopt '-knpfs'
+    if ql    /= null then qopt = qopt '-locking'
+    if qm    /= null then qopt = qopt '-metacache'
+    if qr    /= null then qopt = qopt '-reset'
+    if qs    /= null then qopt = qopt '-storage'
+    if qv    /= null then qopt = qopt '-vnodecache'
   end
   When zcmd = 7 then do
     salopt = null
