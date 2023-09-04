@@ -6,6 +6,7 @@
    ~ type(text) intens(high) color(turq  ) hilite(reverse)
    @ type(output) intens(high) color(turq  ) hilite(reverse)
    _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+   ^ type(text) skip(on) intens(low)
 )Body  Expand(\\)
 %\-\-~DSFS dsadm Menu@ver%-\-\
 %Option ===>_zcmd
@@ -20,9 +21,9 @@ $z+
                         config:_z+   configquery:_z+ createparm:_z+
                         fileinfo:_z+ fsinfo:_z+      query:_z+     salvage:_z+
  % 6#dsadm query       +query information for the DSFS kernel
-                        compression:_z+ dscache:_z+ filecache:_z+ iobydasd:_z+
-                        knpfs:_z+       locking:_z+ metacache:_z+ reset:_z+
-                        storage:_z+     vnodecache:_z+
+                        compression:_z^ dscache:_z^ filecache:_z^ iobydasd:_z^
+                        knpfs:_z^       locking:_z^ metacache:_z^ storage:_z^
+                        vnodecache:_z+  reset:_z+
  % 7#dsadm salvage     +salvage utility file system  %*+Requires uid=0
                         cancel:_z+ verifyonly:_z+
  +
@@ -32,7 +33,7 @@ $z+
 )Init
   .zvars = '(confirm dtxt dbin drec +
              hc hcq hcr hfi hfs hq hs +
-             qc qds qfc qio qkn ql qm qr qs qv sc sv)'
+             qc qds qfc qio qkn ql qm qs qv qr sc sv)'
   &confirm = &z
   .cursor = zcmd
 )Proc
@@ -41,7 +42,7 @@ $z+
       qc qds qfc qio qkn ql qm qr qs qv qopt sc sv salopt resp csr confirm)
   parse value '' with null csr msg
   if resp /= 'END' then do
-  if translate(zcmd) = 'RESET' then
+  if abbrev('RESET',translate(zcmd),3) = 1 then
       parse value '' with dtxt dbin drec hc hcq hcr hfi hfs hq hs qc qds ,
         qfc qio qkn ql qm qr qs qv sc sv confirm zcmd fihlq
     if zcmd /= null then do

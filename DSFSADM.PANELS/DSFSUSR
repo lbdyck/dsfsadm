@@ -6,6 +6,7 @@
    ~ type(text) intens(high) color(turq  ) hilite(reverse)
    @ type(output) intens(high) color(turq  ) hilite(reverse)
    _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+   ^ type(text) skip(on) intens(low)
 )Body  Expand(\\)
 %\-\-~DSFS User Menu@ver%-\-\
 %Option ===>_zcmd
@@ -19,9 +20,9 @@
                         config:_z+   configquery:_z+ createparm:_z+
                         fileinfo:_z+ fsinfo:_z+      query:_z+
  % 5#dsadm query       +query information for the DSFS kernel
-                        compression:_z+ dscache:_z+ filecache:_z+ iobydasd:_z+
-                        knpfs:_z+       locking:_z+ metacache:_z+
-                        storage:_z+     vnodecache:_z+
+                        compression:_z^ dscache:_z^ filecache:_z^ iobydasd:_z^
+                        knpfs:_z^       locking:_z^ metacache:_z^
+                        storage:_z^     vnodecache:_z+
  +
  %Notes:+all options allow only a single selection except query.
  +       Enter%RESET+to clear all selections.
@@ -36,7 +37,7 @@
       qc qds qfc qio qkn ql qm qs qv qopt resp csr fihlq)
   parse value '' with null csr msg
   if resp /= 'END' then do
-  if translate(zcmd) = 'RESET' then
+  if abbrev('RESET',translate(zcmd),3) = 1 then
       parse value '' with dtxt dbin drec hc hcq hcr hfi hfs hq hs qc qds ,
         qfc qio qkn ql qm qr qs qv sc sv zcmd fihlq
     if zcmd /= null then do

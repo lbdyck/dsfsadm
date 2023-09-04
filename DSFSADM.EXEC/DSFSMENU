@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  -------------------- */
-  ver = '0.5'
+  ver = '0.6'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -32,6 +32,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/04 LBD - Improve help display           |
   |            2023/09/04 LBD - split out user and cleanup     |
   |            2023/09/03 LBD - multiple options for query     |
   |            2023/09/02 LBD - ready for alpha testing        |
@@ -87,14 +88,14 @@ Do_Dsadm:
   Do Forever
     zcmd = null
     if option = 'D'
-       then 'Display Panel(dsfsdsa)'
-       else 'Display Panel(dsfsusr)'
+    then 'Display Panel(dsfsdsa)'
+    else 'Display Panel(dsfsusr)'
     if rc > 3 then exit 0
     if zcmd /= null then
     if option = 'D' then
-       parse value '1 2 3 4 5 6 7' with o1 o2 o3 o4 o5 o6 o7
+    parse value '1 2 3 4 5 6 7' with o1 o2 o3 o4 o5 o6 o7
     if option = 'U' then
-       parse value 'x 1 2 3 4 5 x' with o1 o2 o3 o4 o5 o6 o7
+    parse value 'x 1 2 3 4 5 x' with o1 o2 o3 o4 o5 o6 o7
     Select
       When zcmd = o1 then x = do_omvs_command('dsadm configquery -all')
       When zcmd = o2 then do
@@ -200,33 +201,56 @@ View_It:
       maxl = 0
       ind = 0
       Select
-      When wordpos(dsfshelp,'config createparm') > 0 then do
-      hit = 0
-      do i = 1 to s.0
-        if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
-          parse value s.i with add ' | ' s.i
-          sc = sc + 1
-          if hit = 0
-             then sn.sc = add
-             else sn.sc = copies(' ',ind)'| 'add
-             hit = 1
-          if ind = 0 then ind = pos('{-',add)-2
+        When wordpos(dsfshelp,'config createparm') > 0 then do
+          hit = 0
+          do i = 1 to s.0
+            if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
+              parse value s.i with add ' | ' s.i
+              sc = sc + 1
+              if hit = 0
+              then sn.sc = add
+              else sn.sc = copies(' ',ind)'| 'add
+              hit = 1
+              if ind = 0 then ind = pos('{-',add)-2
+            end
+            sc = sc + 1
+            if pos('-------------',s.i) > 0 then ind = 0
+            if ind = 0
+            then sn.sc = s.i
+            else sn.sc = copies(' ',ind)'|' s.i
+          end
         end
-        sc = sc + 1
-        if pos('-------------',s.i) > 0 then ind = 0
-        if ind = 0
-           then sn.sc = s.i
-           else sn.sc = copies(' ',ind)'|' s.i
+        When pos('dsadm query',ocmd) > 0 then do i = 1 to s.0
+           sc = sc + 1
+           sn.sc = s.i
+           sn.0 = sc
+           end
+        otherwise do i = 1 to s.0
+          if length(s.i) > 80 then do  while length(s.i) > 80
+            lp = lastpos('[-',s.i,80) - 1
+            data = left(s.i,lp)
+            if ind = 0 then
+            if wordpos('Usage:',data) > 0 then
+               ind = pos(word(s.i,5),data) - 2
+            s.i = strip(substr(s.i,lp))
+            sc = sc + 1
+            if pos('Usage:',data) > 0
+               then sn.sc = data
+               else sn.sc = copies(' ',ind)''data
+          end
+            if pos('---------',s.i) > 0 then ind = 0
+            sc = sc + 1
+            if pos('Usage:',data) > 0
+               then sn.sc = s.i
+               else sn.sc = copies(' ',ind)''s.i
+            sn.0 = sc
+        end
       end
       drop s.
       do i = 1 to sc
         s.i = sn.i
       end
-      s.0 = sc
     end
-      otherwise nop
-      end
-      end
     x = alloc_view()
     'execio * diskw' dd '(finis stem s.'
   end
