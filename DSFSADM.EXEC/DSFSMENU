@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  -------------------- */
-  ver = '0.4'
+  ver = '0.5'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -9,7 +9,8 @@
   |                                                            |
   |            options:                                        |
   |                Admin (A) Administration Menu               |
-  |                User  (U) dsadm (user and admin)            |
+  |                dsadm (D) dsadm (user and admin)            |
+  |                user  (U) dsadm (user only)                 |
   |                                                            |
   | Usage Notes:  Operator requires ability to issue operator  |
   |               commands using SDSF                          |
@@ -18,8 +19,10 @@
   |               point must exist                             |
   |                                                            |
   | Elements:  Panels                                          |
-  |             dsfsopr                                        |
   |             dsfsadm                                        |
+  |             dsfsdsa                                        |
+  |             dsfscre                                        |
+  |             dsfsusr                                        |
   |             ...                                            |
   |            Messages                                        |
   |             isrz002 (IBM generic)                          |
@@ -29,6 +32,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/04 LBD - split out user and cleanup     |
   |            2023/09/03 LBD - multiple options for query     |
   |            2023/09/02 LBD - ready for alpha testing        |
   |            2023/08/28 LBD - Small updates                  |
@@ -46,11 +50,11 @@
   'control errors return'
 
   if option /= null then
-  if pos(left(option,1),'AU') = 0 then do
+  if pos(left(option,1),'ADU') = 0 then do
     zerrsm  = ''
-    zerrlm  = 'This application requires an option of Admin (A) or' ,
-      'User (U)' ,
-      'or blank (for dsaddm to operate.  Try again.'
+    zerrlm  = 'This application requires an option of Admin (A), ' ,
+      'dsadm (D) or user (U)' ,
+      'or blank (for User to operate.  Try again.'
     'Setmsg msg(isrz002)'
     exit 8
   end
@@ -72,21 +76,28 @@
   end
 
   if option = 'A' then call do_Admin
-  if option = 'U' then call do_User
+  if option = 'D' then call do_dsadm
+  if option = 'U' then call do_dsadm
   exit 0
 
   /* ------------------------------- *
   | Process the DsAdm DSADM commands |
   * ------------------------------- */
-Do_User:
+Do_Dsadm:
   Do Forever
     zcmd = null
-    'Display Panel(dsfsuser)'
+    if option = 'D'
+       then 'Display Panel(dsfsdsa)'
+       else 'Display Panel(dsfsusr)'
     if rc > 3 then exit 0
     if zcmd /= null then
+    if option = 'D' then
+       parse value '1 2 3 4 5 6 7' with o1 o2 o3 o4 o5 o6 o7
+    if option = 'U' then
+       parse value 'x 1 2 3 4 5 x' with o1 o2 o3 o4 o5 o6 o7
     Select
-      When zcmd = 1 then x = do_omvs_command('dsadm configquery -all')
-      When zcmd = 2 then do
+      When zcmd = o1 then x = do_omvs_command('dsadm configquery -all')
+      When zcmd = o2 then do
         /* --------------------Samples--------------------------------- *
         | dsadm createparm -path /dsfs/txt/user1 -psmodel              |
         | "cyl dsorg(ps) lrecl(300) recfm(vb) space(20,10) blksize(0)" |
@@ -115,11 +126,11 @@ Do_User:
           x = do_omvs_command(cmd)
         end
       end
-      When zcmd = 3 then x = do_omvs_command('dsadm fileinfo -path' fipath)
-      When zcmd = 4 then x = do_omvs_command('dsadm fsinfo')
-      When zcmd = 5 then x = do_omvs_command('dsadm help -topic' dshelp)
-      When zcmd = 6 then x = do_omvs_command('dsadm query 'qopt)
-      When zcmd = 7 then x = do_omvs_command('dsadm salvage' salopt)
+      When zcmd = o3 then x = do_omvs_command('dsadm fileinfo -path' fipath)
+      When zcmd = o4 then x = do_omvs_command('dsadm fsinfo')
+      When zcmd = o5 then x = do_omvs_command('dsadm help -topic' dshelp)
+      When zcmd = o6 then x = do_omvs_command('dsadm query 'qopt)
+      When zcmd = o7 then x = do_omvs_command('dsadm salvage' salopt)
       Otherwise nop /* should never get here */
     end
   end
@@ -139,7 +150,8 @@ Do_Admin:
       When zcmd = 3 then x = do_zos_command('F DSFS,fsinfo')
       When zcmd = 4 then x = do_zos_command('F DSFS,Query,All')
       When zcmd = 5 then x = do_zos_command('F DSFS,Reset')
-      When zcmd = 6 then x = dsfsmenu('U')
+      When zcmd = 6 then x = dsfsmenu('D')
+      When zcmd = 7 then x = dsfsmenu('U')
       Otherwise nop
     end
   end

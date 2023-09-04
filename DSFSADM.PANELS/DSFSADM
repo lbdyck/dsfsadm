@@ -8,15 +8,16 @@
 )Body  Expand(\\)
 %\-\-~DSFS Admin Menu@ver%-\-\
 %Option ===>_zcmd
-%
+$z+
 !*%1#abort             +Causes DSFS to Dump and Restart
 !*%2#dump              +Dumps DSFS including the z/OS Unix address space
  +                      and associated address spaces
 !*%3#fsinfo            +Display detailed information about the DSFS Utility
  +                      file system
 !*%4#query             +Displays All DSFS counters or values
-!*%5#reset             +Resets all DSFS counters to zero $z+
+!*%5#reset             +Resets all DSFS counters to zero
  % 6#dsadm commands    +dsadm commands (admin and user)
+ % 7#user commands     +dsadm commands (user only)
 +
          !*+These actions require SDSF Operator Command capability.
  +
@@ -30,13 +31,26 @@
  &resp = .resp
 *rexx(* confirm zcmd msg csr resp hcon)
   parse value '' with null msg csr
-  if resp /= 'END' then
-  if zcmd = 5 then do
-     if confirm /= 'Y' then do
-        msg = 'Are you sure you want to do a reset? Enter Y to confirm.'
+  if resp /= 'END' then do
+    if zcmd /= null then do
+      if datatype(zcmd) /= 'NUM' then do
+        msg = 'Invalid command entered - must be numeric from 1 to 7'
+        csr = 'zcmd'
+      end
+      else if zcmd < 1 | zcmd > 7 then do
+        msg = 'Invalid command entered - must be within range of 1 to 7'
+        csr = 'zcmd'
+      end
+    end
+    if msg = null then
+    if zcmd = 5 then do
+      if confirm /= 'Y' then do
+        msg = 'Are you sure you want to do a reset? Enter Y at the cursor' ,
+          'to confirm.'
         csr = 'confirm'
-        end
-   end
+      end
+    end
+  end
 *endrexx
  if (&msg NE &Z)
      &zedsmsg = &Z

@@ -1,0 +1,134 @@
+)Attr Default(%+_)
+   # type(ps)
+   $ type( input) intens(high) caps(on ) just(left )
+   ` type(text) intens(high) color(blue)
+   ! type(text) intens(high) color(yellow)
+   ~ type(text) intens(high) color(turq  ) hilite(reverse)
+   @ type(output) intens(high) color(turq  ) hilite(reverse)
+   _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+)Body  Expand(\\)
+%\-\-~DSFS User Menu@ver%-\-\
+%Option ===>_zcmd
+%
+ % 1#dsadm createparm  +Set Creation Parameters
+ % 2#dsadm fileinfo    +Obtain information on a file or directory
+                        txt:_z+ bin:_z+ rec:_z+
+                        hlq:_fihlq                   +
+ % 3#dsadm fsinfo      +Obtain utility file system information
+ % 4#dsadm help        +get help on commands
+                        config:_z+   configquery:_z+ createparm:_z+
+                        fileinfo:_z+ fsinfo:_z+      query:_z+
+ % 5#dsadm query       +query information for the DSFS kernel
+                        compression:_z+ dscache:_z+ filecache:_z+ iobydasd:_z+
+                        knpfs:_z+       locking:_z+ metacache:_z+
+                        storage:_z+     vnodecache:_z+
+ +
+ %Notes:+all options allow only a single selection except query.
+ +       Enter%RESET+to clear all selections.
+)Init
+  .zvars = '(dtxt dbin drec +
+             hc hcq hcr hfi hfs hq +
+             qc qds qfc qio qkn ql qm qs qv)'
+  .cursor = 'zcmd'
+)Proc
+ &resp = .resp
+*rexx(* msg fipath dshelp dtxt dbin drec hc hcq hcr hfi hfs hq hs ,
+      qc qds qfc qio qkn ql qm qs qv qopt resp csr fihlq)
+  parse value '' with null csr msg
+  if resp /= 'END' then do
+  if translate(zcmd) = 'RESET' then
+      parse value '' with dtxt dbin drec hc hcq hcr hfi hfs hq hs qc qds ,
+        qfc qio qkn ql qm qr qs qv sc sv zcmd fihlq
+    if zcmd /= null then do
+      if datatype(zcmd) /= 'NUM' then do
+        msg = 'Invalid command entered - must be numeric from 1 to 5'
+        csr = 'zcmd'
+      end
+      else if zcmd < 1 | zcmd > 7 then do
+        msg = 'Invalid command entered - must be within range of 1 to 5'
+        csr = 'zcmd'
+      end
+    end
+    Select
+      When zcmd = 2 then do
+        if space(dtxt dbin drec) = null
+        then do
+          msg = 'fileinfo requires a directory type'
+          csr = 'dtxt'
+        end
+        if words(dtxt dbin drec) > 1
+        then do
+          msg = 'fileinfo requires a single directory type'
+          csr = 'dtxt'
+        end
+        if msg = null then do
+        select
+          when dtxt /= null
+          then fipath = '/dsfs/txt'
+          when dbin /= null
+          then fipath = '/dsfs/bin'
+          when drec /= null
+          then fipath = '/dsfs/rec'
+          otherwise nop
+        end
+        if fihlq /= null
+           then fipath = fipath'/'fihlq
+        end
+      end
+      When zcmd = 4 then do
+        dshelp = null
+        if words(hc hcq hcr hfi hfs hq hs) = 0 then do
+          msg = 'Help requires a selection - try again.'
+          csr = 'hc'
+        end
+        if msg = null then
+        if words(hc hcq hcr hfi hfs hq hs) > 1 then do
+          msg = 'Help only allows a single value - try again.'
+          csr = 'hc'
+        end
+        if msg = null then
+        select
+          when hc  /= null then dshelp = 'config'
+          when hcq /= null then dshelp = 'configquery'
+          when hcr /= null then dshelp = 'createparm'
+          when hfi /= null then dshelp = 'fileinfo'
+          when hfs /= null then dshelp = 'fsinfo'
+          when hq  /= null then dshelp = 'query'
+          otherwise nop
+        end
+      end
+      When zcmd = 5 then do
+        qopt = null
+        if words(qc qds qfc qio qkn ql qm qs qv) = 0 then do
+          msg = 'Query requires an option - try again.'
+          csr = 'qc'
+        end
+        if msg = null then
+        if qc    /= null then qopt = qopt '-compression'
+        if qds   /= null then qopt = qopt '-dscache'
+        if qfc   /= null then qopt = qopt '-filecache'
+        if qio   /= null then qopt = qopt '-iobydasd'
+        if qkn   /= null then qopt = qopt '-knpfs'
+        if ql    /= null then qopt = qopt '-locking'
+        if qm    /= null then qopt = qopt '-metacache'
+        if qs    /= null then qopt = qopt '-storage'
+        if qv    /= null then qopt = qopt '-vnodecache'
+      end
+      Otherwise nop
+    end
+  end
+*endrexx
+*rexx(* csr msg)
+*endrexx
+ if (&msg NE &Z)
+     &zedsmsg = &Z
+     &zedlmsg = &msg
+     .MSG = ISRZ001
+     .cursor = &csr
+)PNTS
+ FIELD(ZPS00001) VAR(RESULT) VAL('1')
+ FIELD(ZPS00002) VAR(RESULT) VAL('2')
+ FIELD(ZPS00003) VAR(RESULT) VAL('3')
+ FIELD(ZPS00004) VAR(RESULT) VAL('4')
+ FIELD(ZPS00005) VAR(RESULT) VAL('5')
+)End
