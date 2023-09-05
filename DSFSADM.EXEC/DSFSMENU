@@ -33,6 +33,7 @@
   |                                                            |
   | History:  (most recent on top)                             |
   |            2023/09/05 LBD - Improve nesting                |
+  |                           - fixup stems remove nulls       |
   |            2023/09/04 LBD - Improve help display           |
   |            2023/09/04 LBD - split out user and cleanup     |
   |            2023/09/03 LBD - multiple options for query     |
@@ -203,6 +204,7 @@ View_It:
   if vopt = 'ISF' then do
     do i = 1 to isfulog.0
       if length(isfulog.i) > maxl then maxl = length(isfulog.i)
+      if strip(isfulog.i) = null then isfulog.i = ' '
     end
     x = alloc_view()
     'execio * diskw' dd '(finis stem isfulog.'
