@@ -1,5 +1,5 @@
   /* --------------------  rexx procedure  -------------------- */
-  ver = '0.6'
+  ver = '0.7'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -32,6 +32,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/05 LBD - Improve nesting                |
   |            2023/09/04 LBD - Improve help display           |
   |            2023/09/04 LBD - split out user and cleanup     |
   |            2023/09/03 LBD - multiple options for query     |
@@ -76,10 +77,11 @@
     exit 8
   end
 
+Start:
   if option = 'A' then call do_Admin
   if option = 'D' then call do_dsadm
   if option = 'U' then call do_dsadm
-  exit 0
+  return 0
 
   /* ------------------------------- *
   | Process the DsAdm DSADM commands |
@@ -90,7 +92,7 @@ Do_Dsadm:
     if option = 'D'
     then 'Display Panel(dsfsdsa)'
     else 'Display Panel(dsfsusr)'
-    if rc > 3 then exit 0
+    if rc > 3 then return 0
     if zcmd /= null then
     if option = 'D' then
     parse value '1 2 3 4 5 6 7' with o1 o2 o3 o4 o5 o6 o7
@@ -144,15 +146,29 @@ Do_Admin:
   Do Forever
     zcmd = null
     'Display Panel(dsfsadm)'
-    if rc > 3 then exit 0
+    if rc > 3 then return 0
     Select
       When zcmd = 1 then x = do_zos_command('F DSFS,Abort')
       When zcmd = 2 then x = do_zos_command('F DSFS,Dump')
       When zcmd = 3 then x = do_zos_command('F DSFS,fsinfo')
       When zcmd = 4 then x = do_zos_command('F DSFS,Query,All')
       When zcmd = 5 then x = do_zos_command('F DSFS,Reset')
-      When zcmd = 6 then x = dsfsmenu('D')
-      When zcmd = 7 then x = dsfsmenu('U')
+      When zcmd = 6 then do
+          save_opt = option
+          option = 'D'
+          x = start()
+          option = save_opt
+          call start
+          return 0
+          end
+      When zcmd = 7 then do
+          save_opt = option
+          option = 'U'
+          x = start()
+          option = save_opt
+          call start
+          return 0
+          end
       Otherwise nop
     end
   end
@@ -194,6 +210,7 @@ View_It:
   if vopt = 'S' then do
     do i = 1 to s.0
       if length(s.i) > maxl then maxl = length(s.i)
+      if strip(s.i) = null then s.i = ' '
     end
     if maxl > 80 then do
       drop sc.
