@@ -44,8 +44,11 @@
   * ---------------------------------------------------------- */
   arg option
 
+  /* ------------------- *
+  | Define our defaults |
+  * ------------------- */
   parse value '' with null
-  zerrhm   = ''
+  zerrhm   = null
   zerralrm = 'NO'
   zerrtp   = 'Notify'
 
@@ -155,26 +158,29 @@ Do_Admin:
       When zcmd = 4 then x = do_zos_command('F DSFS,Query,All')
       When zcmd = 5 then x = do_zos_command('F DSFS,Reset')
       When zcmd = 6 then do
-          save_opt = option
-          option = 'D'
-          x = start()
-          option = save_opt
-          call start
-          return 0
-          end
+        save_opt = option
+        option = 'D'
+        x = start()
+        option = save_opt
+        call start
+        return 0
+      end
       When zcmd = 7 then do
-          save_opt = option
-          option = 'U'
-          x = start()
-          option = save_opt
-          call start
-          return 0
-          end
+        save_opt = option
+        option = 'U'
+        x = start()
+        option = save_opt
+        call start
+        return 0
+      end
       Otherwise nop
     end
   end
   return 0
 
+  /* ----------------------------------- *
+  | Process the z/OS command using SDSF |
+  * ----------------------------------- */
 Do_zOS_Command:
   parse arg zoscmd
   isfcons = sysvar('sysuid')
@@ -184,6 +190,9 @@ Do_zOS_Command:
   xc = isfcalls('off')
   return 0
 
+  /* ---------------------------------------- *
+  | Process the omvs commands using bpxwunix |
+  * ---------------------------------------- */
 Do_OMVS_Command:
   parse arg ocmd
   drop s. e.
@@ -197,10 +206,21 @@ Do_OMVS_Command:
   rc = view_it('S')
   return 0
 
+  /* --------------------------------------------------------------- *
+  | This routine will take the stem variables isfulog (from sdsf)   |
+  | and s (from bpxwunix) and replace empty stem values with a      |
+  | single blank (to prevent execio from stopping).                 |
+  |                                                                 |
+  | Then perform various processes to clean up the resulting report |
+  | and place the data into a temporary dataset for browsing.       |
+  * --------------------------------------------------------------- */
 View_It:
   arg vopt
   maxl = 0
   Address TSO
+  /* --------------------------------------------- *
+  | Process the SDSF stem (isfulog.) for browsing |
+  * --------------------------------------------- */
   if vopt = 'ISF' then do
     do i = 1 to isfulog.0
       if length(isfulog.i) > maxl then maxl = length(isfulog.i)
@@ -209,6 +229,9 @@ View_It:
     x = alloc_view()
     'execio * diskw' dd '(finis stem isfulog.'
   end
+  /* ------------------------------------------- *
+  | Process the bpxwunix stem (s.) for browsing |
+  * ------------------------------------------- */
   if vopt = 'S' then do
     do i = 1 to s.0
       if length(s.i) > maxl then maxl = length(s.i)
@@ -240,29 +263,29 @@ View_It:
           end
         end
         When pos('dsadm query',ocmd) > 0 then do i = 1 to s.0
-           sc = sc + 1
-           sn.sc = s.i
-           sn.0 = sc
-           end
+          sc = sc + 1
+          sn.sc = s.i
+          sn.0 = sc
+        end
         otherwise do i = 1 to s.0
           if length(s.i) > 80 then do  while length(s.i) > 80
             lp = lastpos('[-',s.i,80) - 1
             data = left(s.i,lp)
             if ind = 0 then
             if wordpos('Usage:',data) > 0 then
-               ind = pos(word(s.i,5),data) - 2
+            ind = pos(word(s.i,5),data) - 2
             s.i = strip(substr(s.i,lp))
             sc = sc + 1
             if pos('Usage:',data) > 0
-               then sn.sc = data
-               else sn.sc = copies(' ',ind)''data
+            then sn.sc = data
+            else sn.sc = copies(' ',ind)''data
           end
-            if pos('---------',s.i) > 0 then ind = 0
-            sc = sc + 1
-            if pos('Usage:',data) > 0
-               then sn.sc = s.i
-               else sn.sc = copies(' ',ind)''s.i
-            sn.0 = sc
+          if pos('---------',s.i) > 0 then ind = 0
+          sc = sc + 1
+          if pos('Usage:',data) > 0
+          then sn.sc = s.i
+          else sn.sc = copies(' ',ind)''s.i
+          sn.0 = sc
         end
       end
       drop s.
@@ -273,6 +296,9 @@ View_It:
     x = alloc_view()
     'execio * diskw' dd '(finis stem s.'
   end
+  /* --------------------------------------------------- *
+  | Use ISPF Services to browse the generated report(s) |
+  * --------------------------------------------------- */
   Address ISPExec
   'lminit dataid(ddb) ddname('dd')'
   'browse dataid('ddb')'
@@ -281,6 +307,10 @@ View_It:
     'free f('dd')'
   Return 0
 
+  /* ----------------------------------------- *
+  | Allocate the temporary dataset to be used |
+  | for browsing the generated reports        |
+  * ----------------------------------------- */
 Alloc_View:
   dd = 'ds'time('s')
   Address TSO ,

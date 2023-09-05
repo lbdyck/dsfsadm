@@ -53,9 +53,12 @@ $z+
   end
 *endrexx
  if (&msg NE &Z)
-     &zedsmsg = &Z
-     &zedlmsg = &msg
-     .MSG = ISRZ001
+     &zerrhm   = &z
+     &zerralrm = 'NO'
+     &zerrtp   = 'Notify'
+     &zerrsm  = &Z
+     &zerrlm  = &msg
+     .MSG = ISRZ002
      .cursor = &csr
 )PNTS
  FIELD(ZPS00001) VAR(RESULT) VAL('1')
