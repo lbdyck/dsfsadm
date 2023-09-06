@@ -9,6 +9,9 @@ It isn't perfect but it is a start.
  - If you received the package as a TSO XMIT file then
      - Do a TSO RECEIVE of the XMIT file
      - execute the $RECV member to reconstitute the EXEC and PANELS members
+ - If you received the package via a ZIGI clone then you're all set
+ - If you received the package via git then get into the shell (omvs or ssh) and execute the zginstall.rex to create
+   the z/OS datasets
  - update the DSFSADM member in the EXEC PDS to reference your libaries and copy into a library in your SYSEXEC or SYSPROC allocation
    ** this is optional as it will use ALTLIB and LIBDEF to access the dialog in the recived libraries
  - OR
