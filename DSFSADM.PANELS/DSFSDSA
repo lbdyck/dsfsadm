@@ -14,18 +14,19 @@ $z+
  % 1#dsadm configquery +query configuration settings for the DSFS kernel
  % 2#dsadm createparm  +Set Creation Parameters
  % 3#dsadm fileinfo    +Obtain information on a file or directory
-                        txt:_z+ bin:_z+ rec:_z+
-                        hlq:_fihlq                   +
- % 4#dsadm fsinfo      +Obtain utility file system information
- % 5#dsadm help        +get help on commands
-                        config:_z+   configquery:_z+ createparm:_z+
-                        fileinfo:_z+ fsinfo:_z+      query:_z+     salvage:_z+
- % 6#dsadm query       +query information for the DSFS kernel
-                        compression:_z^ dscache:_z^ filecache:_z^ iobydasd:_z^
-                        knpfs:_z^       locking:_z^ metacache:_z^ storage:_z^
-                        vnodecache:_z+  reset:_z+
- % 7#dsadm salvage     +salvage utility file system  %*+Requires uid=0
-                        cancel:_z+ verifyonly:_z+
+ % 2#dsadm fileinfo    +Obtain information on a file or directory:
+                          txt_z+         bin_z+         rec_z+
+                          hlq_fihlq                    +
+ % 4#dsadm fsinfo      +Obtain Utility File System Information
+ % 5#dsadm help        +Get Help on Commands
+                          config_z+      configquery_z+ createparm_z+
+                          fileinfo_z+    fsinfo_z+      query_z+     salvage:_z+
+ % 6#dsadm query       +Query information for the DSFS kernel
+                          compression_z^ dscache_z^     filecache_z^
+                          iobydasd_z^    knpfs_z^       locking_z^
+                          metacache_z^   storage_z^     vnodecache_z+ reset:_z+
+ % 7#dsadm salvage     +Salvage Utility File System  %*+Requires uid=0
+                          cancel:_z+     verifyonly:_z+
  +
  %Notes:+All options allow only a single selection except query.
  +       Confirm for%query reset+and%salvage+when prompted

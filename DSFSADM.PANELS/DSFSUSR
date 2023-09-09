@@ -12,19 +12,19 @@
 %Option ===>_zcmd
 %
  % 1#dsadm createparm  +Set Creation Parameters
- % 2#dsadm fileinfo    +Obtain information on a file or directory
-                        txt:_z+ bin:_z+ rec:_z+
-                        hlq:_fihlq                   +
+ % 2#dsadm fileinfo    +Obtain information on a file or directory:
+                          txt_z+         bin_z+         rec_z+
+                          hlq_fihlq                    +
  % 3#dsadm fsinfo      +Obtain utility file system information
- % 4#dsadm help        +get help on commands
-                        config:_z+   configquery:_z+ createparm:_z+
-                        fileinfo:_z+ fsinfo:_z+      query:_z+
- % 5#dsadm query       +query information for the DSFS kernel
-                        compression:_z^ dscache:_z^ filecache:_z^ iobydasd:_z^
-                        knpfs:_z^       locking:_z^ metacache:_z^
-                        storage:_z^     vnodecache:_z+
+ % 4#dsadm help        +Get Help on Commands:
+                          config_z+      configquery_z+ createparm_z+
+                          fileinfo_z+    fsinfo_z+      query_z+
+ % 5#dsadm query       +Query information for the DSFS kernel:
+                          compression_z^ dscache_z^     filecache_z^
+                          iobydasd_z^    knpfs_z^       locking_z^
+                          metacache_z^   storage_z^     vnodecache_z+
  +
- %Notes:+all options allow only a single selection except query.
+ %Notes:+All options allow only a single selection except query.
  +       Enter%RESET+to clear all selections.
 )Init
   .zvars = '(dtxt dbin drec +

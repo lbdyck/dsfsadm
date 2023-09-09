@@ -198,9 +198,12 @@ Do_OMVS_Command:
   drop s. e.
   x = bpxwunix(ocmd,,s.,e.)
   is = s.0 + 1
-  s.is = copies('-',72)
+  s.is = ' '
   is = is + 1
-  s.is = 'Generated command:' ocmd
+  head = 'Generated command:' ocmd
+  s.is = copies('-',length(head))
+  is = is + 1
+  s.is = head
   s.0 = is
   parse value ocmd with . '-topic' dsfshelp
   rc = view_it('S')
