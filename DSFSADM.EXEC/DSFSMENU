@@ -1,5 +1,5 @@
-  /* --------------------  rexx procedure  -------------------- */
-  ver = '0.7'
+  /* - -----------------  rexx procedure  -------------------- */
+  ver = '0.8'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -32,6 +32,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/16 LBD - Redo display of help info      |
   |            2023/09/05 LBD - Improve nesting                |
   |                           - fixup stems remove nulls       |
   |            2023/09/04 LBD - Improve help display           |
@@ -234,6 +235,7 @@ View_It:
   end
   /* ------------------------------------------- *
   | Process the bpxwunix stem (s.) for browsing |
+  | This is rather ugly but it is what it is... |
   * ------------------------------------------- */
   if vopt = 'S' then do
     do i = 1 to s.0
@@ -246,29 +248,50 @@ View_It:
       maxl = 0
       ind = 0
       Select
-        When wordpos(dsfshelp,'config createparm') > 0 then do
-          hit = 0
-          do i = 1 to s.0
-            if pos('|',s.i) > 0 then do until pos(' | ',s.i) = 0
-              parse value s.i with add ' | ' s.i
-              sc = sc + 1
-              if hit = 0
-              then sn.sc = add
-              else sn.sc = copies(' ',ind)'| 'add
-              hit = 1
-              if ind = 0 then ind = pos('{-',add)-2
+        When word(ocmd,2) = 'help' then do
+          parse value s.1 with . cmd':'
+          call add_line s.1
+          call add_line subword(s.2,1,4)
+          if wordpos(word(s.2,4),'fileinfo salvage') = 0 then do
+            ind = pos(':',s.2)+1
+            if pos('[{',s.2) > 0 then do
+              parse value s.2 with . '[{' data '}]' last
+              parse value data with opt '|' data   /* 1st option */
+              call add_line '[{' opt
+              parse value data with ' -'opt '| -'data
+              call add_line ' | -'opt
+              data = '-'data
+              do forever
+                parse value data with '-'opt '| -'data
+                data = '-'data
+                if strip(opt) = null then leave
+                call add_line ' | -'opt
+                if pos('|',data) = 0 then leave
+              end
+              if strip(data) /= '-'
+              then call add_line ' | 'data
+              sn.sc = sn.sc '}]'
+              data = last
             end
-            sc = sc + 1
-            if pos('-------------',s.i) > 0 then ind = 0
-            if ind = 0
-            then sn.sc = s.i
-            else sn.sc = copies(' ',ind)'|' s.i
+            else parse value s.2 with . ':' . . data
+            if pos('[',data) > 2 then do
+              parse value data with opt '['data
+              call add_line opt
+            end
+            do forever
+              parse value data with '['opt']' data
+              call add_line '['opt']'
+              if strip(data) = null then leave
+            end
+          end
+          else do
+            call add_line subword(s.2,1,4)
+            ind = pos(':',s.2)+1
+            call add_line subword(s.2,5)
           end
         end
         When pos('dsadm query',ocmd) > 0 then do i = 1 to s.0
-          sc = sc + 1
-          sn.sc = s.i
-          sn.0 = sc
+          call add_line s.i
         end
         otherwise do i = 1 to s.0
           if length(s.i) > 80 then do  while length(s.i) > 80
@@ -309,6 +332,16 @@ View_It:
   Address TSO ,
     'free f('dd')'
   Return 0
+
+  /* ------------------------------- *
+  | Add line of text to output stem |
+  * ------------------------------- */
+add_line:
+  parse arg line
+  sc = sc + 1
+  sn.sc = copies(' ',ind)''line
+  sn.0 = sc
+  return
 
   /* ----------------------------------------- *
   | Allocate the temporary dataset to be used |

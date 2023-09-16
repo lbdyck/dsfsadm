@@ -14,7 +14,6 @@ $z+
  % 1#dsadm configquery +query configuration settings for the DSFS kernel
  % 2#dsadm createparm  +Set Creation Parameters
  % 3#dsadm fileinfo    +Obtain information on a file or directory
- % 2#dsadm fileinfo    +Obtain information on a file or directory:
                           txt_z+         bin_z+         rec_z+
                           hlq_fihlq                    +
  % 4#dsadm fsinfo      +Obtain Utility File System Information
