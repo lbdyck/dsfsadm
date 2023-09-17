@@ -1,0 +1,28 @@
+)attr default(%+_)
+   $ type( input) intens(high) caps(on ) just(left )
+   ! type(text) intens(high) color(yellow)
+   ~ type(text) intens(high) color(turq  ) hilite(reverse)
+   @ type(output) intens(high) color(turq  ) hilite(reverse)
+   _ type(input) caps(off) just(left) hilite(uscore) intens(low)
+)Body Expand(\\)
+%Tutorial -\-\~DSFS ISPF Dialog%\-\- Tutorial
+%Command ===>_ZCMD                                                             +
++
+                              +DSFS ISPF Dialog
++
+  +DSFS is IBM's Data Set File System released with z/OS 2.5 and available
+  +with all releases of z/OS since. It provides 'easy' Unix-like access to
+  +z/OS datasets from the OMVS environment.
+  +
+  +This dialog provides a simple way to access the DSFS commands for those
+  +who don't remember what commands are available, or their syntax, because
+  +the commands are used infrequently.
+  +
+  +For information on the Data Set File System find the IBM publications for
+  +this feature.
++
+)Init
+ .cursor = &zcmd
+)PROC
+ &zcont = dsfstutr
+)END

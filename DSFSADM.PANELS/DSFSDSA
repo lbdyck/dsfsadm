@@ -36,6 +36,7 @@ $z+
              qc qds qfc qio qkn ql qm qs qv qr sc sv)'
   &confirm = &z
   .cursor = zcmd
+  .help = dsfstutr
 )Proc
  &resp = .resp
 *rexx(* msg fipath dshelp dtxt dbin drec hc hcq hcr hfi hfs hq hs fihlq,
@@ -153,7 +154,7 @@ $z+
   end
 *endrexx
  if (&msg NE &Z)
-     &zerrhm   = &z
+     &zerrhm   = 'dsfstutr'
      &zerralrm = 'NO'
      &zerrtp   = 'Notify'
      &zerrsm  = &Z

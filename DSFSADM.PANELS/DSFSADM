@@ -22,10 +22,11 @@ $z+
          !*+These actions require SDSF Operator Command capability.
  +
 )Init
- &hcon = &Z
+  &hcon = &Z
   .zvars = '(confirm)'
   .cursor = zcmd
   &confirm = &Z
+  .help = dsfstutr
 )ReInit
 )Proc
  &resp = .resp
@@ -53,7 +54,7 @@ $z+
   end
 *endrexx
  if (&msg NE &Z)
-     &zerrhm   = &z
+     &zerrhm   = 'dsfstutr'
      &zerralrm = 'NO'
      &zerrtp   = 'Notify'
      &zerrsm  = &Z

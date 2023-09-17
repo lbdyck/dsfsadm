@@ -31,6 +31,7 @@
              hc hcq hcr hfi hfs hq +
              qc qds qfc qio qkn ql qm qs qv)'
   .cursor = 'zcmd'
+  .help = dsfstutr
 )Proc
  &resp = .resp
 *rexx(* msg fipath dshelp dtxt dbin drec hc hcq hcr hfi hfs hq hs ,
@@ -122,9 +123,12 @@
 *rexx(* csr msg)
 *endrexx
  if (&msg NE &Z)
-     &zedsmsg = &Z
-     &zedlmsg = &msg
-     .MSG = ISRZ001
+     &zerrhm   = 'dsfstutr'
+     &zerralrm = 'NO'
+     &zerrtp   = 'Notify'
+     &zerrsm  = &Z
+     &zerrlm  = &msg
+     .MSG = ISRZ002
      .cursor = &csr
 )PNTS
  FIELD(ZPS00001) VAR(RESULT) VAL('1')

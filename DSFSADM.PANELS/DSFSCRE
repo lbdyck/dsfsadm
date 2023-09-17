@@ -23,6 +23,7 @@
 )Init
   .cursor = zcmd
   .zvars = '(bin rec txt po ps fb vb trk cyl prim sec)'
+  .help = dsfstutr
 *rexx(* hlq)
    hlq = sysvar('sysuid')
 *endrexx
@@ -116,7 +117,7 @@
      end
 *endrexx
  if (&msg NE &Z)
-     &zerrhm   = &z
+     &zerrhm   = 'dsfstutr'
      &zerralrm = 'NO'
      &zerrtp   = 'Notify'
      &zerrsm  = &Z
