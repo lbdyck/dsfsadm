@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '0.8'
+  ver = '1.0'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -22,16 +22,18 @@
   |             dsfsadm                                        |
   |             dsfsdsa                                        |
   |             dsfscre                                        |
+  |             dsfstutr                                       |
   |             dsfsusr                                        |
-  |             ...                                            |
   |            Messages                                        |
   |             isrz002 (IBM generic)                          |
   |            Exec                                            |
+  |             dsfsadm  - used to altlib/libdef and invoke    |
   |             dsfsmenu (this exec)                           |
   |                                                            |
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/17 LBD - Set to version 1.0             |
   |            2023/09/16 LBD - Redo display of help info      |
   |            2023/09/05 LBD - Improve nesting                |
   |                           - fixup stems remove nulls       |
@@ -49,7 +51,7 @@
   | Define our defaults |
   * ------------------- */
   parse value '' with null
-  zerrhm   = null
+  zerrhm   = 'dsfstutr'
   zerralrm = 'NO'
   zerrtp   = 'Notify'
 
