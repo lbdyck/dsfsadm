@@ -9,7 +9,7 @@
 %\-\-~DSFS dsadm Createparm@ver%-\-\
 %Option ===>_zcmd
 %
- +Using HLQ of#hlq                     +Must start with Active users UserID
+ +Using HLQ of#hlq    +                +Must match the Active users UserID
 +
  +Type:    _z+bin or_z+rec or_z+txt
  +
@@ -18,23 +18,20 @@
  +LRECL:   _lrecl+
  +BLKSIZE: _blksz+  0=system determined  (If RECFM=FB then must be a multiple
  +                                        of the LRECL)
- +Space:   _z+Trks or_z+Cyl
- +Primary: _z   +and Secondary_z   +
 )Init
   .cursor = zcmd
-  .zvars = '(bin rec txt po ps fb vb trk cyl prim sec)'
+  .zvars = '(bin rec txt po ps fb vb)'
   .help = dsfstutr
 *rexx(* hlq)
-   hlq = sysvar('sysuid')
+   if hlq = '' then
+      hlq = sysvar('sysuid')
 *endrexx
 )Proc
  &resp = .resp
- ver (&hlq,nb,dsname)
 *rexx(* resp msg csr)
   parse value '' with msg csr null
-  parse value hlq with top '.' .
-  if top /= sysvar('sysuid') then do
-     msg = 'The HLQ must start with the active users USERID - try again.'
+  if hlq /= sysvar('sysuid') then do
+     msg = 'The HLQ must be the samew as th active users USERID - try again.'
      csr = 'hlq'
      end
   if msg = null then
@@ -90,30 +87,6 @@
      msg = 'The BLKSIZE length must be a multiple of the LRECL for' ,
            'RECFM=FB.'
      csr = 'blksz'
-     end
-  if msg = null then
-     if words(trk cyl) = 0 then do
-     msg = 'You must specify a Space Unit of Track or Cylinder.'
-     csr = 'trk'
-     end
-     else if words(trk cyl) > 1 then do
-     msg = 'You must specify a single Space Unit of Track or Cylinder.'
-     csr = 'trk'
-     end
-  if msg = null then
-     if words(prim sec) < 2 then do
-     msg = 'You must specify both a primary and secondary space allocation.'
-     csr = 'prim'
-     end
-  if msg = null then
-     if datatype(prim) /= 'NUM' then do
-     msg = 'The Primary space allocation must be numeric.'
-     csr = 'prim'
-     end
-  if msg = null then
-     if datatype(sec) /= 'NUM' then do
-     msg = 'The Secondary space allocation must be numeric.'
-     csr = 'sec'
      end
 *endrexx
  if (&msg NE &Z)

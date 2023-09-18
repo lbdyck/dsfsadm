@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.0'
+  ver = '1.1'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -24,6 +24,7 @@
   |             dsfscre                                        |
   |             dsfstutr                                       |
   |             dsfsusr                                        |
+  |             ...                                            |
   |            Messages                                        |
   |             isrz002 (IBM generic)                          |
   |            Exec                                            |
@@ -33,6 +34,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/18 LBD - Set to version 1.1             |
+  |                           - Remove space for createparm    |
   |            2023/09/17 LBD - Set to version 1.0             |
   |            2023/09/16 LBD - Redo display of help info      |
   |            2023/09/05 LBD - Improve nesting                |
@@ -52,6 +55,7 @@
   * ------------------- */
   parse value '' with null
   zerrhm   = 'dsfstutr'
+  zerrhm   = null
   zerralrm = 'NO'
   zerrtp   = 'Notify'
 
@@ -125,14 +129,13 @@ Do_Dsadm:
           if bin /= null then type = 'bin'
           if rec /= null then type = 'rec'
           if txt /= null then type = 'txt'
-          cmd = 'dsadm createparm -path /dsfs/'type'/'lower(hlq) '"'
-          if ps /= null then cmd = cmd 'dsorg(ps)'
-          if po /= null then cmd = cmd 'dsorg(po) dsntype(library)'
+          cmd = 'dsadm createparm -path /dsfs/'type'/'lower(hlq)
+          if ps /= null then cmd = cmd '-psmodel "dsorg(ps)'
+          if po /= null then cmd = cmd '-pdsmodel "dsorg(po) dsntype(library)'
           if fb /= null then cmd = cmd 'recfm(fb)'
           if vb /= null then cmd = cmd 'recfm(vb)'
-          if trk /= null then cmd = cmd 'trks space('prim','sec')'
-          if cyl /= null then cmd = cmd 'cyl  space('prim','sec')'
-          cmd = cmd "lrecl("lrecl") blksize("blksz")'"
+          cmd = cmd 'lrecl('lrecl') blksize('blksz')"'
+          cmd = cmd '&& dsadm fileinfo -path /dsfs/'type'/'lower(hlq)
           x = do_omvs_command(cmd)
         end
       end
@@ -295,9 +298,16 @@ View_It:
         When pos('dsadm query',ocmd) > 0 then do i = 1 to s.0
           call add_line s.i
         end
+        When pos('dsadm createparm',ocmd) > 0 then do
+        do i = 1 to s.0
+          call add_line s.i
+        end
+        if e.0 > 0 then call add_line e.1
+        end
         otherwise do i = 1 to s.0
           if length(s.i) > 80 then do  while length(s.i) > 80
             lp = lastpos('[-',s.i,80) - 1
+            if lp < 0 then lp = 0
             data = left(s.i,lp)
             if ind = 0 then
             if wordpos('Usage:',data) > 0 then
