@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.2'
+  ver = '1.3'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -34,6 +34,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/09/18 LBD - Set to version 1.3             |
+  |                           - bug fix on query               |
   |            2023/09/18 LBD - Set to version 1.2             |
   |                           - restore space for createparm   |
   |                             after getting the syntax right |
@@ -304,10 +306,19 @@ View_It:
           call add_line s.i
         end
         When pos('dsadm createparm',ocmd) > 0 then do
-        do i = 1 to s.0
+           do i = 1 to s.0
+             call add_line s.i
+           end
+           if e.0 > 0 then call add_line e.1
+        end
+        When pos('dsadm helpy',ocm) = 0 then do i = 1 to s.0
           call add_line s.i
         end
-        if e.0 > 0 then call add_line e.1
+        When pos('dsadm createparm',ocmd) > 0 then do
+           do i = 1 to s.0
+             call add_line s.i
+           end
+           if e.0 > 0 then call add_line e.1
         end
         otherwise do i = 1 to s.0
           if length(s.i) > 80 then do  while length(s.i) > 80
