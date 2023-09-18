@@ -18,9 +18,11 @@
  +LRECL:   _lrecl+
  +BLKSIZE: _blksz+  0=system determined  (If RECFM=FB then must be a multiple
  +                                        of the LRECL)
+ +Space:   _z+Trks or_z+Cyl
+ +Primary: _z   +and Secondary_z   +
 )Init
   .cursor = zcmd
-  .zvars = '(bin rec txt po ps fb vb)'
+  .zvars = '(bin rec txt po ps fb vb trk cyl prim sec)'
   .help = dsfstutr
 *rexx(* hlq)
    if hlq = '' then
@@ -50,8 +52,18 @@
      csr = 'po'
      end
   if msg = null then
+  if words(po ps) > 1 then do
+     msg = 'You may select only one dataset organization - try again.'
+     csr = 'po'
+     end
+  if msg = null then
   if words(fb vb) = 0 then do
      msg = 'You must select one record format - try again.'
+     csr = 'fb'
+     end
+  if msg = null then
+  if words(fb vb) > 1 then do
+     msg = 'You may only select one record format - try again.'
      csr = 'fb'
      end
   if msg = null then
@@ -88,6 +100,29 @@
            'RECFM=FB.'
      csr = 'blksz'
      end
+  if msg = null then
+     if words(trk cyl) = 0 then do
+     msg = 'You must specify a Space Unit of Track or Cylinder.'
+     csr = 'trk'
+     end
+  if msg = null then
+     if words(trk cyl) > 1 then do
+     msg = 'You must specify a single Space Unit of Track or Cylinder.'
+     csr = 'trk'
+     end
+  if msg = null then
+     if datatype(prim) /= 'NUM' then do
+     msg = 'The Primary space allocation must be numeric.'
+     csr = 'prim'
+     end
+  if msg = null then
+     if sec /= null then do
+        if datatype(sec) /= 'NUM' then do
+        msg = 'The Secondary space allocation must be numeric.'
+        csr = 'sec'
+        end
+     end
+     else sec = prim
 *endrexx
  if (&msg NE &Z)
      &zerrhm   = 'dsfstutr'
