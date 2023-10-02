@@ -19,13 +19,13 @@ $z+
  % 4#dsadm fsinfo      +Obtain Utility File System Information
  % 5#dsadm help        +Get Help on Commands
                           config_z+      configquery_z+ createparm_z+
-                          fileinfo_z+    fsinfo_z+      query_z+     salvage:_z+
+                          fileinfo_z+    fsinfo_z+      query_z+     salvage_z+
  % 6#dsadm query       +Query information for the DSFS kernel
                           compression_z^ dscache_z^     filecache_z^
                           iobydasd_z^    knpfs_z^       locking_z^
-                          metacache_z^   storage_z^     vnodecache_z+ reset:_z+
+                          metacache_z^   storage_z^     vnodecache_z+ reset_z+
  % 7#dsadm salvage     +Salvage Utility File System  %*+Requires uid=0
-                          cancel:_z+     verifyonly:_z+
+                          cancel_z+     verifyonly_z+
  +
  %Notes:+All options allow only a single selection except query.
  +       Confirm for%query reset+and%salvage+when prompted

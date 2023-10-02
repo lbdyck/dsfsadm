@@ -9,17 +9,22 @@
 %\-\-~DSFS dsadm Createparm@ver%-\-\
 %Option ===>_zcmd
 %
- +Using HLQ of#hlq    +                +Must match the Active users UserID
++Using HLQ of#hlq                          +
 +
- +Type:    _z+bin or_z+rec or_z+txt
- +
- +DSORG:   _z+Partitioned or_z+Sequential
- +RECFM:   _z+FB or_z+VB
- +LRECL:   _lrecl+
- +BLKSIZE: _blksz+  0=system determined  (If RECFM=FB then must be a multiple
- +                                        of the LRECL)
- +Space:   _z+Trks or_z+Cyl
- +Primary: _z   +and Secondary_z   +
++Type:    _z+bin or_z+rec or_z+txt
++
++DSORG:   _z+Partitioned or_z+Sequential
++RECFM:   _z+FB or_z+VB
++LRECL:   _lrecl+
++BLKSIZE: _blksz+
++Space:   _z+Trks or_z+Cyl
++Primary: _z   +and Secondary_z   +
++
++Notes:  1. The HLQ must start with the active users User ID and
++           there must be at least one dataset under the HLQ
++        2. For BLKSIZE a value of 0 will use the system determined blksize
++        3. If RECFM is FB and BLKSIZE is not 0, then it must be a multiple
++           of the LRECL
 )Init
   .cursor = zcmd
   .zvars = '(bin rec txt po ps fb vb trk cyl prim sec)'
@@ -32,8 +37,11 @@
  &resp = .resp
 *rexx(* resp msg csr)
   parse value '' with msg csr null
-  if hlq /= sysvar('sysuid') then do
-     msg = 'The HLQ must be the samew as th active users USERID - try again.'
+  if pos('.',hlq) > 0
+     then parse value hlq with testhlq'.' .
+     else testhlq = hlq
+  if testhlq /= sysvar('sysuid') then do
+     msg = 'The HLQ must be the same as th active users USERID - try again.'
      csr = 'hlq'
      end
   if msg = null then
@@ -132,4 +140,6 @@
      &zerrlm  = &msg
      .MSG = ISRZ002
      .cursor = &csr
+ if (&msg EQ &Z)
+     ver (&hlq,dsname)
 )End

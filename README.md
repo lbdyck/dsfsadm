@@ -35,5 +35,5 @@ It isn't perfect but it is a start.
     2. dsadm config was not implemented as it seemed too powerful
        - let the user update the config manually
     3. dsadm createparm only support fb and vb
-    4. There is NO WAY to list existing createparm's
+    4. There is NO WAY to list existing createparm's other than by specific HLQ
 

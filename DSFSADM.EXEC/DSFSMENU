@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.3'
+  ver = '1.5'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -34,14 +34,18 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
-  |            2023/09/18 LBD - Set to version 1.3             |
+  |            2023/10/02 LBD - version 1.5                    |
+  |                           - several minor updates          |
+  |            2023/09/30 LBD - version 1.4                    |
+  |                           - improve createparm report      |
+  |            2023/09/18 LBD - Version 1.3                    |
   |                           - bug fix on query               |
-  |            2023/09/18 LBD - Set to version 1.2             |
+  |            2023/09/18 LBD - Version 1.2                    |
   |                           - restore space for createparm   |
   |                             after getting the syntax right |
-  |            2023/09/18 LBD - Set to version 1.1             |
+  |            2023/09/18 LBD - Version 1.1                    |
   |                           - Remove space for createparm    |
-  |            2023/09/17 LBD - Set to version 1.0             |
+  |            2023/09/17 LBD - Version 1.0                    |
   |            2023/09/16 LBD - Redo display of help info      |
   |            2023/09/05 LBD - Improve nesting                |
   |                           - fixup stems remove nulls       |
@@ -141,8 +145,11 @@ Do_Dsadm:
           if vb /= null then cmd = cmd 'recfm(vb)'
           if trk /= null then cmd = cmd 'tracks space('prim','sec')'
           if cyl /= null then cmd = cmd 'cyl  space('prim','sec')'
-          cmd = cmd 'lrecl('lrecl') blksize('blksz')"'
-          cmd = cmd '&& dsadm fileinfo -path /dsfs/'type'/'lower(hlq)
+          cmd = cmd 'lrecl('lrecl') blksize('blksz')"' ,
+               '&& echo "return code:" $?' ,
+               '&& echo "'copies('-',72)'"' ,
+               '&& echo "Filefino report" ',
+               '&& dsadm fileinfo -path /dsfs/'type'/'lower(hlq)
           x = do_omvs_command(cmd)
         end
       end
@@ -254,10 +261,13 @@ View_It:
       if length(s.i) > maxl then maxl = length(s.i)
       if strip(s.i) = null then s.i = ' '
     end
+    do i = 1 to e.0
+      if length(e.i) > maxl then maxl = length(e.i)
+      if strip(e.i) = null then e.i = ' '
+    end
     if maxl > 80 then do
       drop sc.
       sc = 0
-      maxl = 0
       ind = 0
       Select
         When word(ocmd,2) = 'help' then do
@@ -309,7 +319,9 @@ View_It:
            do i = 1 to s.0
              call add_line s.i
            end
-           if e.0 > 0 then call add_line e.1
+           if e.0 > 0 then do ie = 1 to e.0
+              call add_line e.ie
+              end
         end
         When pos('dsadm helpy',ocm) = 0 then do i = 1 to s.0
           call add_line s.i
