@@ -8,7 +8,7 @@
 )Body  Expand(\\)
 %\-\-~DSFS Admin Menu@ver%-\-\
 %Option ===>_zcmd
-$z+
++
 !*%1#abort             +Causes DSFS to Dump and Restart
 !*%2#dump              +Dumps DSFS including the z/OS Unix address space
  +                      and associated address spaces
@@ -23,14 +23,12 @@ $z+
  +
 )Init
   &hcon = &Z
-  .zvars = '(confirm)'
   .cursor = zcmd
-  &confirm = &Z
   .help = dsfstutr
 )ReInit
 )Proc
  &resp = .resp
-*rexx(* confirm zcmd msg csr resp hcon)
+*rexx(* zcmd msg csr resp hcon)
   parse value '' with null msg csr
   if resp /= 'END' then do
     if zcmd /= null then do
@@ -41,14 +39,6 @@ $z+
       else if zcmd < 1 | zcmd > 7 then do
         msg = 'Invalid command entered - must be within range of 1 to 7'
         csr = 'zcmd'
-      end
-    end
-    if msg = null then
-    if zcmd = 5 then do
-      if confirm /= 'Y' then do
-        msg = 'Are you sure you want to do a reset? Enter Y at the cursor' ,
-          'to confirm.'
-        csr = 'confirm'
       end
     end
   end

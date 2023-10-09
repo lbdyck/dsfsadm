@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.5'
+  ver = '1.6'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -21,6 +21,7 @@
   | Elements:  Panels                                          |
   |             dsfsadm                                        |
   |             dsfsdsa                                        |
+  |             dsfsconf                                       |
   |             dsfscre                                        |
   |             dsfstutr                                       |
   |             dsfsusr                                        |
@@ -34,6 +35,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2023/10/09 LBD - version 1.6                    |
+  |                           - add confirmation popup         |
   |            2023/10/02 LBD - version 1.5                    |
   |                           - several minor updates          |
   |            2023/09/30 LBD - version 1.4                    |
@@ -172,11 +175,23 @@ Do_Admin:
     'Display Panel(dsfsadm)'
     if rc > 3 then return 0
     Select
-      When zcmd = 1 then x = do_zos_command('F DSFS,Abort')
-      When zcmd = 2 then x = do_zos_command('F DSFS,Dump')
+      When zcmd = 1 then do
+           rc = prompt('Confirm DSFS Abort')
+           if rc = 0 then
+           x = do_zos_command('F DSFS,Abort')
+           end
+      When zcmd = 2 then do
+           rc = prompt('Confirm DSFS Dump')
+           if rc = 0 then
+           x = do_zos_command('F DSFS,Dump')
+           end
       When zcmd = 3 then x = do_zos_command('F DSFS,fsinfo')
       When zcmd = 4 then x = do_zos_command('F DSFS,Query,All')
-      When zcmd = 5 then x = do_zos_command('F DSFS,Reset')
+      When zcmd = 5 then do
+           rc = prompt('Confirm DSFS Statistic Reset')
+           if rc = 0 then
+           x = do_zos_command('F DSFS,Reset')
+           end
       When zcmd = 6 then do
         save_opt = option
         option = 'D'
@@ -197,6 +212,21 @@ Do_Admin:
     end
   end
   return 0
+
+  /* --------------------------------- *
+   | Prompt for Confirmation of Action |
+   * --------------------------------- */
+Prompt:
+  parse arg prompt
+  dsfsconf = null
+  address ispexec
+  'addpop'
+  'display panel(dsfsconf)'
+  drc = rc
+  'rempop'
+  if dsfsconf = null then return 4
+  return 0
+
 
   /* ----------------------------------- *
   | Process the z/OS command using SDSF |

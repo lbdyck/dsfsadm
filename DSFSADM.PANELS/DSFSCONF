@@ -1,0 +1,17 @@
+)Attr
+ $ type(output) caps(off) intens(low)
+ _ type(input) hilite(uscore) caps(on)
+ @ type(input ) caps(on) hilite(uscore)
+)Body Window(60,6)
+$prompt
++Confirmation:_z% Y+for Yes.
++
++Enter the Confirmation or%F3+to cancel.
++
++
+)Init
+ .zvars = '(dsfsconf)'
+ &zwinttl = 'DSFS Confirmation Prompt'
+)Proc
+ ver (&dsfsconf,nb,list,Y)
+)End
