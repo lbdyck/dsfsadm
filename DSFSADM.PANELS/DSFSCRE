@@ -44,6 +44,16 @@
      msg = 'The HLQ must be the same as th active users USERID - try again.'
      csr = 'hlq'
      end
+  if msg = null then do
+     call outtrap 'x.'
+     'listc level('hlq')'
+     call outtrap 'off'
+     if pos('NOT FOUND',x.1) > 0 then do
+        msg = 'At least one dataset must be allocated using the provided',
+              'HLQ.'
+        csr = 'hlq'
+     end
+     end
   if msg = null then
   if words(bin rec txt) = 0 then do
      msg = 'You must select one type for the createparm option - try again.'
