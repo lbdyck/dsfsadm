@@ -148,8 +148,8 @@
      &zerrtp   = 'Notify'
      &zerrsm  = &Z
      &zerrlm  = &msg
-     .MSG = ISRZ002
      .cursor = &csr
+     .MSG = ISRZ002
  if (&msg EQ &Z)
      ver (&hlq,dsname)
 )End

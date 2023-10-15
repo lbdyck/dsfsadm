@@ -159,8 +159,8 @@ $z+
      &zerrtp   = 'Notify'
      &zerrsm  = &Z
      &zerrlm  = &msg
-     .MSG = ISRZ002
      .cursor = &csr
+     .MSG = ISRZ002
 )PNTS
  FIELD(ZPS00001) VAR(RESULT) VAL('1')
  FIELD(ZPS00002) VAR(RESULT) VAL('2')
