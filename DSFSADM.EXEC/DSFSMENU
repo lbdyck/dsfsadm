@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.6'
+  ver = '1.7'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -35,6 +35,9 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2024/01/19 LBD - version 1.7                    |
+  |                           - add data/mgmt/stor class to    |
+  |                             createparm                     |
   |            2023/10/09 LBD - version 1.6                    |
   |                           - add confirmation popup         |
   |            2023/10/02 LBD - version 1.5                    |
@@ -146,6 +149,9 @@ Do_Dsadm:
           if po /= null then cmd = cmd '-pdsmodel "dsorg(po) dsntype(library)'
           if fb /= null then cmd = cmd 'recfm(fb)'
           if vb /= null then cmd = cmd 'recfm(vb)'
+          if datac /= null then cmd = cmd 'dataclas('datac')'
+          if mgmtc /= null then cmd = cmd 'mgmtclas('mgmtc')'
+          if storc /= null then cmd = cmd 'storclas('storc')'
           if trk /= null then cmd = cmd 'tracks space('prim','sec')'
           if cyl /= null then cmd = cmd 'cyl  space('prim','sec')'
           cmd = cmd 'lrecl('lrecl') blksize('blksz')"' ,

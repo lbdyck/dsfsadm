@@ -11,14 +11,15 @@
 %
 +Using HLQ of#hlq                          +
 +
-+Type:    _z+bin or_z+rec or_z+txt
++Type:     #z+bin or#z+rec or#z+txt
 +
-+DSORG:   _z+Partitioned or_z+Sequential
-+RECFM:   _z+FB or_z+VB
-+LRECL:   _lrecl+
-+BLKSIZE: _blksz+
-+Space:   _z+Trks or_z+Cyl
-+Primary: _z   +and Secondary_z   +
++DSORG:    #z+Partitioned or#z+Sequential
++RECFM:    #z+FB or#z+VB
++LRECL:    #lrecl+
++BLKSIZE:  #blksz+
++Space:    #z+Trks or#z+Cyl
++Primary:  #z   +and Secondary#z   +
++DataClass:#datac   +  MgmtClass:#mgmtc   +  StorClass:#storc   +
 +
 +Notes:  1. The HLQ must start with the active users User ID and
 +           there must be at least one dataset under the HLQ
@@ -152,4 +153,7 @@
      .MSG = ISRZ002
  if (&msg EQ &Z)
      ver (&hlq,dsname)
+     ver (&datac,name)
+     ver (&mgmtc,name)
+     ver (&storc,name)
 )End
