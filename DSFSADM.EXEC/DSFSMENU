@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.7'
+  ver = '1.8'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -35,6 +35,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2024/01/28 LBD - version 1.8                    |
+  |                           - remove space after cyl         |
   |            2024/01/19 LBD - version 1.7                    |
   |                           - add data/mgmt/stor class to    |
   |                             createparm                     |
@@ -153,7 +155,7 @@ Do_Dsadm:
           if mgmtc /= null then cmd = cmd 'mgmtclas('mgmtc')'
           if storc /= null then cmd = cmd 'storclas('storc')'
           if trk /= null then cmd = cmd 'tracks space('prim','sec')'
-          if cyl /= null then cmd = cmd 'cyl  space('prim','sec')'
+          if cyl /= null then cmd = cmd 'cyl space('prim','sec')'
           cmd = cmd 'lrecl('lrecl') blksize('blksz')"' ,
                '&& echo "return code:" $?' ,
                '&& echo "'copies('-',72)'"' ,
