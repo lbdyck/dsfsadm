@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.8'
+  ver = '1.9'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -35,6 +35,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2024/01/30 LBD - version 1.9                    |
+  |                           - add level option               |
   |            2024/01/28 LBD - version 1.8                    |
   |                           - remove space after cyl         |
   |            2024/01/19 LBD - version 1.7                    |
@@ -123,9 +125,9 @@ Do_Dsadm:
     if rc > 3 then return 0
     if zcmd /= null then
     if option = 'D' then
-    parse value '1 2 3 4 5 6 7' with o1 o2 o3 o4 o5 o6 o7
+    parse value '1 2 3 4 5 6 7 8' with o1 o2 o3 o4 o5 o8
     if option = 'U' then
-    parse value 'x 1 2 3 4 5 x' with o1 o2 o3 o4 o5 o6 o7
+    parse value 'x 1 2 3 4 5 6' with o1 o2 o3 o4 o5 o6 o8
     Select
       When zcmd = o1 then x = do_omvs_command('dsadm configquery -all')
       When zcmd = o2 then do
@@ -169,6 +171,7 @@ Do_Dsadm:
       When zcmd = o5 then x = do_omvs_command('dsadm help -topic' dshelp)
       When zcmd = o6 then x = do_omvs_command('dsadm query 'qopt)
       When zcmd = o7 then x = do_omvs_command('dsadm salvage' salopt)
+      When zcmd = o8 then x = do_omvs_command('dsadm level')
       Otherwise nop /* should never get here */
     end
   end
@@ -216,6 +219,7 @@ Do_Admin:
         call start
         return 0
       end
+      When zcmd = 8 then x = do_omvs_command('dsadm level')
       Otherwise nop
     end
   end

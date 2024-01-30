@@ -26,9 +26,9 @@ $z+
                           metacache_z^   storage_z^     vnodecache_z+ reset_z+
  % 7#dsadm salvage     +Salvage Utility File System  %*+Requires uid=0
                           cancel_z+     verifyonly_z+
+ % 8#level             +Display dsfs maintenance level
  +
  %Notes:+All options allow only a single selection except query.
- +       Confirm for%query reset+and%salvage+when prompted
  +       Enter%RESET+to clear all selections.
 )Init
   .zvars = '(confirm dtxt dbin drec +
@@ -51,8 +51,8 @@ $z+
         msg = 'Invalid command entered - must be numeric from 1 to 7'
         csr = 'zcmd'
       end
-      else if zcmd < 1 | zcmd > 7 then do
-        msg = 'Invalid command entered - must be within range of 1 to 7'
+      else if zcmd < 1 | zcmd > 8 then do
+        msg = 'Invalid command entered - must be within range of 1 to 8'
         csr = 'zcmd'
       end
     end
@@ -169,4 +169,5 @@ $z+
  FIELD(ZPS00005) VAR(RESULT) VAL('5')
  FIELD(ZPS00006) VAR(RESULT) VAL('6')
  FIELD(ZPS00007) VAR(RESULT) VAL('7')
+ FIELD(ZPS00008) VAR(RESULT) VAL('8')
 )End

@@ -18,6 +18,7 @@
 !*%5#reset             +Resets all DSFS counters to zero
  % 6#dsadm commands    +dsadm commands (admin and user)
  % 7#user commands     +dsadm commands (user only)
+ % 8#level             +Display dsfs maintenance level
 +
          !*+These actions require SDSF Operator Command capability.
  +
@@ -33,11 +34,11 @@
   if resp /= 'END' then do
     if zcmd /= null then do
       if datatype(zcmd) /= 'NUM' then do
-        msg = 'Invalid command entered - must be numeric from 1 to 7'
+        msg = 'Invalid command entered - must be numeric from 1 to 8'
         csr = 'zcmd'
       end
-      else if zcmd < 1 | zcmd > 7 then do
-        msg = 'Invalid command entered - must be within range of 1 to 7'
+      else if zcmd < 1 | zcmd > 8 then do
+        msg = 'Invalid command entered - must be within range of 1 to 8'
         csr = 'zcmd'
       end
     end
@@ -58,4 +59,6 @@
  FIELD(ZPS00004) VAR(RESULT) VAL('4')
  FIELD(ZPS00005) VAR(RESULT) VAL('5')
  FIELD(ZPS00006) VAR(RESULT) VAL('6')
+ FIELD(ZPS00007) VAR(RESULT) VAL('7')
+ FIELD(ZPS00008) VAR(RESULT) VAL('8')
 )End

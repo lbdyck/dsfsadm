@@ -23,6 +23,7 @@
                           compression_z^ dscache_z^     filecache_z^
                           iobydasd_z^    knpfs_z^       locking_z^
                           metacache_z^   storage_z^     vnodecache_z+
+ % 6#dsadm level       +Display maintenance level for DSFS
  +
  %Notes:+All options allow only a single selection except query.
  +       Enter%RESET+to clear all selections.
@@ -43,11 +44,11 @@
         qfc qio qkn ql qm qr qs qv sc sv zcmd fihlq
     if zcmd /= null then do
       if datatype(zcmd) /= 'NUM' then do
-        msg = 'Invalid command entered - must be numeric from 1 to 5'
+        msg = 'Invalid command entered - must be numeric from 1 to 6'
         csr = 'zcmd'
       end
       else if zcmd < 1 | zcmd > 7 then do
-        msg = 'Invalid command entered - must be within range of 1 to 5'
+        msg = 'Invalid command entered - must be within range of 1 to 6'
         csr = 'zcmd'
       end
     end
@@ -136,4 +137,5 @@
  FIELD(ZPS00003) VAR(RESULT) VAL('3')
  FIELD(ZPS00004) VAR(RESULT) VAL('4')
  FIELD(ZPS00005) VAR(RESULT) VAL('5')
+ FIELD(ZPS00006) VAR(RESULT) VAL('6')
 )End
