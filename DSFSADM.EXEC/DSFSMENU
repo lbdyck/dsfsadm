@@ -1,5 +1,5 @@
   /* - -----------------  rexx procedure  -------------------- */
-  ver = '1.9'
+  ver = '2.0'
   /* Name:      dsfsmenu                                       |
   |                                                            |
   | Function:  Display menu's for the management by sysprog    |
@@ -35,6 +35,8 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            2024/02/01 LBD - version 2.0                    |
+  |                           - Support superuser (salvage)    |
   |            2024/01/30 LBD - version 1.9                    |
   |                           - add level option               |
   |            2024/01/28 LBD - version 1.8                    |
@@ -124,10 +126,15 @@ Do_Dsadm:
     else 'Display Panel(dsfsusr)'
     if rc > 3 then return 0
     if zcmd /= null then
-    if option = 'D' then
-    parse value '1 2 3 4 5 6 7 8' with o1 o2 o3 o4 o5 o8
-    if option = 'U' then
+    Select
+    When option = 'D' then
+    parse value '1 2 3 4 5 6 7 8' with o1 o2 o3 o4 o5 o6 o7 o8
+    When option = 'U' then
     parse value 'x 1 2 3 4 5 6' with o1 o2 o3 o4 o5 o6 o8
+    When option = 'A' then
+    parse value '1 2 3 4 5 6 7 8' with o1 o2 o3 o4 o5 o8
+    Otherwise nop
+    end
     Select
       When zcmd = o1 then x = do_omvs_command('dsadm configquery -all')
       When zcmd = o2 then do
@@ -170,7 +177,13 @@ Do_Dsadm:
       When zcmd = o4 then x = do_omvs_command('dsadm fsinfo')
       When zcmd = o5 then x = do_omvs_command('dsadm help -topic' dshelp)
       When zcmd = o6 then x = do_omvs_command('dsadm query 'qopt)
-      When zcmd = o7 then x = do_omvs_command('dsadm salvage' salopt)
+      When zcmd = o7 then do
+           address syscall 'geteuid'
+           myeuid=retval
+           Address syscall "seteuid 0"
+           x = do_omvs_command('dsadm salvage' salopt '&& id')
+           Address syscall "seteuid" myeuid
+           end
       When zcmd = o8 then x = do_omvs_command('dsadm level')
       Otherwise nop /* should never get here */
     end
@@ -262,6 +275,15 @@ Do_OMVS_Command:
   is = s.0 + 1
   s.is = ' '
   is = is + 1
+  if e.0 > 0 then do
+    head = 'Error Messages:'
+    s.is = copies('-',length(head))
+    is = is + 1
+    s.is = head
+    is = is + 1
+    s.is = e.1
+    is = is + 1
+    end
   head = 'Generated command:' ocmd
   s.is = copies('-',length(head))
   is = is + 1
